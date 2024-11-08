@@ -1,7 +1,3 @@
-# You can use this script to verify that the data objects used as expected
-# outcomes for integration tests are reasonable.
-# This script expects to be run from the repository root.
-
 library(hubData)
 library(hubVis)
 library(fs)
