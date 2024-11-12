@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+click = "*"
+python-dateutil = "*"
+pandas = "*"
+idmodels = {ref = "b08602e37f1a4d5d8aed9caac5b28188583b23a5", git = "git+https://github.com/reichlab/idmodels"}
+numpy = "==1.26.4"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

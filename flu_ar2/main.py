@@ -16,7 +16,10 @@ from idmodels.sarix import SARIXModel
 )
 def main(today_date: str | None = None):
     """Get clade counts and save to S3 bucket."""
-    today_date = datetime.date.fromisoformat(today_date)
+    try:
+        today_date = datetime.date.fromisoformat(today_date)
+    except (TypeError, ValueError):  # if today_date is None or a bad format
+        today_date = datetime.date.today()
     reference_date = today_date + relativedelta.relativedelta(weekday=5)
     
     model_config = SimpleNamespace(
