@@ -16,7 +16,10 @@ from idmodels.sarix import SARIXModel
 )
 def main(today_date: str | None = None):
     """Get clade counts and save to S3 bucket."""
-    today_date = datetime.date.fromisoformat(today_date)
+    try:
+        today_date = datetime.date.fromisoformat(today_date)
+    except (TypeError, ValueError):  # if today_date is None or a bad format
+        today_date = datetime.date.today()
     reference_date = today_date + relativedelta.relativedelta(weekday=5)
     
     model_config = SimpleNamespace(
@@ -52,8 +55,13 @@ def main(today_date: str | None = None):
         output_root=Path("output/model-output"),
         artifact_store_root=None,
         max_horizon=5,
-        q_levels = [0.025, 0.50, 0.975],
-        q_labels = ["0.025", "0.5", "0.975"],
+        q_levels = [0.01, 0.025, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
+                    0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70,
+                    0.75, 0.80, 0.85, 0.90, 0.95, 0.975, 0.99],
+        q_labels = ['0.01', '0.025', '0.05', '0.1', '0.15', '0.2',
+                    '0.25', '0.3', '0.35', '0.4', '0.45', '0.5',
+                    '0.55', '0.6', '0.65', '0.7', '0.75', '0.8',
+                    '0.85', '0.9', '0.95', '0.975', '0.99'],
         num_warmup = 2000,
         num_samples = 2000,
         num_chains = 1
