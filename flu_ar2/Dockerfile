@@ -47,15 +47,8 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null;
 RUN apt update && apt install -y gh;
 
-# install R packages from CRAN. NB: we install arrow explicitly so that it will get the latest version. o/w we see an
-# error like: namespace ‘arrow’ 14.0.2.1 is being loaded, but >= 17.0.0 is required
-RUN Rscript -e "install.packages(c('lubridate', 'readr', 'remotes'))"
-RUN Rscript -e "install.packages('arrow', repos = c('https://apache.r-universe.dev', 'https://cran.r-project.org'))"
-
-# install R packages from reichlab
-RUN Rscript -e "remotes::install_github('reichlab/zoltr')"
-RUN Rscript -e "remotes::install_github('hubverse-org/hubData')"
-RUN Rscript -e "remotes::install_github('hubverse-org/hubVis')"
+# install renv for installing required R packages below
+RUN Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
 
 # install required Python packages
 RUN pip3 install --upgrade pip
@@ -63,13 +56,14 @@ RUN pip3 install 'click==8.1.7' 'numpy==2.1.3' 'pandas==2.2.3' 'python-dateutil=
 
 WORKDIR /app
 
+# install required R packages using renv
+ENV RENV_PATHS_LIBRARY renv/library
+COPY flu_ar2/renv.lock ./
+RUN Rscript -e "renv::restore()"
+
 # clone https://github.com/reichlab/container-utils. ADD is a hack ala https://stackoverflow.com/questions/35134713/disable-cache-for-specific-run-commands
 ADD "https://api.github.com/repos/reichlab/container-utils/commits?per_page=1" latest_commit
 RUN git clone https://github.com/reichlab/container-utils.git
-
-# the ADD is a hack ala https://stackoverflow.com/questions/35134713/disable-cache-for-specific-run-commands
-ADD "https://api.github.com/repos/elray1/sarix/commits?per_page=1" latest_commit
-RUN pip3 install git+https://github.com/elray1/sarix.git
 
 COPY flu_ar2/main.py flu_ar2/plot.R flu_ar2/run.sh ./
 
