@@ -25,10 +25,7 @@ docker build --tag=flu_ar2:1.0 --file=flu_ar2/Dockerfile .
 ## To run the image locally
 
 ```bash
-docker run --rm \
-  --mount type=volume,src=data_volume,target=/data \
-  --env-file /path-to-env-dir/.env \
-  flu_ar2:1.0
+docker run --rm flu_ar2:1.0
 ```
 
 ## To publish the image
