@@ -14,7 +14,7 @@ model_out_tbl <- dplyr::collect(hub_con) |>
   hubEnsembles::simple_ensemble(model_id = "UMass-flusion")
 
 # add categorical target predictions
-target_ts <- readr::read_csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/target-data-archive/target-hospital-admissions_2024-02-10.csv")
+target_ts <- readr::read_csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/target-data/target-hospital-admissions.csv")
 location_meta <- readr::read_csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 bin_endpoints <- idforecastutils::get_flusight_bin_endpoints(
   target_ts = target_ts,
@@ -42,7 +42,7 @@ if (!dir.exists(output_dir)) {
 }
 
 utils::write.csv(
-  model_out_tbl,
+  model_out_tbl |> dplyr::select(-model_id),
   file = file.path(
     output_dir,
     paste0(reference_date, "-UMass-flusion.csv")

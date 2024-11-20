@@ -28,7 +28,7 @@ def main(reference_date: str, short_run: bool):
         incl_level_feats = True,
 
         # bagging setup
-        num_bags = 10,
+        num_bags = 100,
         bag_frac_samples = 0.7,
 
         # adjustments to reporting
@@ -62,13 +62,12 @@ def main(reference_date: str, short_run: bool):
         q_labels = ['0.01', '0.025', '0.05', '0.1', '0.15', '0.2',
                     '0.25', '0.3', '0.35', '0.4', '0.45', '0.5',
                     '0.55', '0.6', '0.65', '0.7', '0.75', '0.8',
-                    '0.85', '0.9', '0.95', '0.975', '0.99'],
-        num_bags = 100
+                    '0.85', '0.9', '0.95', '0.975', '0.99']
     )
     if short_run:
         run_config.q_levels = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975]
         run_config.q_labels = ['0.025', '0.1', '0.25', '0.5', '0.75', '0.9', '0.975']
-        run_config.num_bags = 20
+        model_config.num_bags = 10
     
     model = GBQRModel(model_config)
     model.run(run_config)
