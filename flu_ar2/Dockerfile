@@ -52,7 +52,7 @@ RUN Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-proje
 
 # install required Python packages
 RUN pip3 install --upgrade pip
-RUN pip3 install 'click==8.1.7' 'numpy==2.1.3' 'pandas==2.2.3' 'python-dateutil==2.9.0.post0' 'idmodels @ git+https://github.com/reichlab/idmodels@b08602e37f1a4d5d8aed9caac5b28188583b23a5'
+RUN pip3 install 'click==8.1.7' 'numpy==2.1.3' 'pandas==2.2.3' 'python-dateutil==2.9.0.post0' 'idmodels @ git+https://github.com/reichlab/idmodels@138c5ba5e467814ec76344751b52c4f43e5813c1'
 
 WORKDIR /app
 
