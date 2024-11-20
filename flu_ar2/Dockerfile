@@ -24,9 +24,26 @@ RUN apt-get install -y --no-install-recommends \
     libjpeg-dev \
     unixodbc-dev
 
-# install system libraries required by pyenv. per https://medium.com/@aashari/easy-to-follow-guide-of-how-to-install-pyenv-on-ubuntu-a3730af8d7f0
-RUN apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
-    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+# install system libraries required by pyenv
+RUN apt install -y --no-install-recommends \
+    make \
+    build-essential \
+    curl \
+    git \
+    libbz2-dev \
+    libffi-dev \
+    liblzma-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    llvm \
+    tk-dev \
+    wget \
+    xz-utils \
+    zlib1g-dev
 
 # install pyenv, install python 3.12.7, and set pyenv global. per:
 # https://stackoverflow.com/questions/65768775/how-do-i-integrate-pyenv-poetry-and-docker
