@@ -13,6 +13,26 @@ python main.py --today_date=2024-01-06
 
 This should result in a model output file and a pdf with a plot under `flu_ar2/output`.
 
+# renv details
+
+The `renv.lock` file was generated via these steps:
+
+- start a fresh temporary [rocker/r-ver:4.3.2](https://hub.docker.com/layers/rocker/r-ver/4.3.2/images/sha256-8b25859fbf21a7075bbc2285ebfe06bb8a14dd83e4576df11ff46f14a8620636?context=explore) container via `docker run --rm -it --name temp_container rocker/r-ver:4.3.2 /bin/bash`
+- install the required OS libraries and applications (see "install general OS utilities" and "install OS binaries required by R packages" in the Dockerfile)
+- install renv via `Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"`
+- create a project directory via `mkdir proj ; cd proj`
+- initialize renv via `Rscript -e "renv::init(bare = TRUE)"`
+- install required R libraries via CRAN:
+```bash
+Rscript -e "renv::install(c('lubridate', 'readr', 'remotes'))"
+Rscript -e "renv::install('arrow', repos = c('https://apache.r-universe.dev', 'https://cran.r-project.org'))"
+Rscript -e "renv::install('reichlab/zoltr')"
+Rscript -e "renv::install('hubverse-org/hubData')"
+Rscript -e "renv::install('hubverse-org/hubVis')"
+```
+- create `renv.lock` from within the R interpreter (fails in bash) via `renv::settings$snapshot.type('all') ; renv::snapshot()`
+- copying the new `/proj/renv.lock` file out from the container
+
 # Docker commands
 
 ## To build the image
