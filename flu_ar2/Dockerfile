@@ -47,18 +47,17 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null;
 RUN apt update && apt install -y gh;
 
-# install renv for installing required R packages below
-RUN Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
-
-# install required Python packages
-RUN pip3 install --upgrade pip
-RUN pip3 install 'click==8.1.7' 'numpy==2.1.3' 'pandas==2.2.3' 'python-dateutil==2.9.0.post0' 'idmodels @ git+https://github.com/reichlab/idmodels@138c5ba5e467814ec76344751b52c4f43e5813c1'
-
 WORKDIR /app
 
+# install required Python packages
+COPY flu_ar2/requirements.txt ./
+RUN pip3 install --upgrade pip
+RUN pip3 install -r requirements.txt
+
 # install required R packages using renv
-ENV RENV_PATHS_LIBRARY renv/library
 COPY flu_ar2/renv.lock ./
+ENV RENV_PATHS_LIBRARY renv/library
+RUN Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN Rscript -e "renv::restore()"
 
 # clone https://github.com/reichlab/container-utils. ADD is a hack ala https://stackoverflow.com/questions/35134713/disable-cache-for-specific-run-commands
