@@ -28,12 +28,9 @@ def main(today_date: str | None = None, short_run: bool = False):
     else:
         short_run_flag = []
     
-    subprocess.run(["python", "0_ar6_pooled.py",
+    subprocess.run(["python", "0_gbqr.py",
                     "--reference_date", str(reference_date)] + short_run_flag)
-    subprocess.run(["python", "1_gbqr.py",
-                    "--reference_date", str(reference_date)] + short_run_flag)
-    subprocess.run(["Rscript", "2_flusion_ensemble.R", str(reference_date)])
-    subprocess.run(["Rscript", "3_plot.R", str(reference_date)])
+    subprocess.run(["Rscript", "1_plot.R", str(reference_date)])
 
 
 if __name__ == "__main__":

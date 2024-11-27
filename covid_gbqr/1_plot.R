@@ -12,28 +12,20 @@ library(idforecastutils)
 args <- commandArgs(trailingOnly = TRUE)
 
 ref_date <- as.Date(args[1])
+data_date <- ref_date - 3
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
+selected_model <- "UMass-gbqr"
 
 hub_con <- hubData::connect_model_output("output/model-output")
 forecasts <- hub_con |>
-  dplyr::filter(reference_date == ref_date) |>
+  dplyr::filter(reference_date == ref_date, model_id == selected_model) |>
   dplyr::collect() |>
   dplyr::left_join(locations)
-
-hub_con <- hubData::connect_model_output("intermediate-output/model-output")
-forecasts <- hub_con |>
-  dplyr::filter(reference_date == ref_date) |>
-  dplyr::collect() |>
-  dplyr::left_join(locations)
-
-selected_model <- "UMass-gbqr"
-forecasts <- forecasts |>
-  dplyr::filter(model_id == selected_model)
 
 # target_data <- readr::read_csv("https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/target-data/covid-hospital-admissions.csv") |>
-target_data <- readr::read_csv("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-2024-11-20.csv") |>
+target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
   dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total COVID-19 Admissions"))
 colnames(target_data) <- c("date", "abbreviation", "value")
 target_data <- target_data |>

@@ -52,7 +52,7 @@ def main(reference_date: str, short_run: bool):
     run_config = SimpleNamespace(
         disease="covid",
         ref_date=reference_date,
-        output_root=Path("intermediate-output/model-output"),
+        output_root=Path("output/model-output"),
         artifact_store_root=None,
         max_horizon=4,
         locations=["US", "01", "02", "04", "05", "06", "08", "09", "10", "11",
