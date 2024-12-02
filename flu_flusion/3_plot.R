@@ -12,6 +12,7 @@ library(idforecastutils)
 args <- commandArgs(trailingOnly = TRUE)
 
 ref_date <- as.Date(args[1])
+data_date <- ref_date - 3
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
@@ -29,7 +30,15 @@ flusion <- hub_con |>
 forecasts <- dplyr::bind_rows(components |> dplyr::mutate(output_type_id = as.character(output_type_id)), flusion) |>
   dplyr::left_join(locations)
 
-target_data <- readr::read_csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/target-data/target-hospital-admissions.csv")
+target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
+  dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total Influenza Admissions"))
+colnames(target_data) <- c("date", "abbreviation", "value")
+target_data <- target_data |>
+  dplyr::mutate(
+    abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
+  ) |>
+  dplyr::left_join(locations) |>
+  dplyr::filter(!is.na(location_name))
 
 data_start <- ref_date - 12 * 7
 data_end <- ref_date + 6 * 7

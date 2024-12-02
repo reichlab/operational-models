@@ -51,6 +51,7 @@ def main(today_date: str | None = None):
     )
     
     run_config = SimpleNamespace(
+        disease="flu",
         ref_date=reference_date,
         output_root=Path("output/model-output"),
         artifact_store_root=None,
