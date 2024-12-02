@@ -19,8 +19,6 @@ forecasts <- readr::read_csv(file.path(input_dir, paste0(ref_date, "-", selected
   dplyr::filter(!location %in% locations_to_drop)
 
 # save
-# reference_date <- model_out_tbl$reference_date[1]
-
 output_dir <- paste0("final-output/model-output/UMass-", selected_model)
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
