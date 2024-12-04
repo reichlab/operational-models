@@ -30,7 +30,7 @@ Rscript -e "renv::install('hubverse-org/hubData')"
 Rscript -e "renv::install('hubverse-org/hubVis')"
 ```
 - create `renv.lock` from within the R interpreter (fails in bash) via `renv::settings$snapshot.type('all') ; renv::snapshot()`
-- copying the new `/proj/renv.lock` file out from the container
+- copy the new `/proj/renv.lock` file out from the container
 
 # Docker commands
 

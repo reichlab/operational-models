@@ -80,14 +80,16 @@ fi
 # the extension, e.g., '2024-01-06-UMass-AR2'
 
 # clone the repo
-HUB_DIR="${APP_DIR}/FluSight-forecast-hub"
+REPO_NAME="FluSight-forecast-hub"
+HUB_DIR="${APP_DIR}/${REPO_NAME}"
 git clone https://github.com/reichlab/FluSight-forecast-hub.git "${HUB_DIR}"
 cd ${HUB_DIR}
 
 # delete old branch
 CSV_FILE_BASENAME=$(basename "${CSV_FILE%.*}") # Parameter Expansion per: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
-BRANCH_NAME=${CSV_FILE_BASENAME}
+BRANCH_NAME=${CSV_FILE_BASENAME}  # e.g., "2024-11-30-UMass-AR2"
 
+# todo: 1) Q: need to check for local too, or only remote? 2) delete only if exists
 slack_message "deleting old branch if present. BRANCH_NAME='${BRANCH_NAME}'"
 git branch --delete --force "${BRANCH_NAME}" # delete local branch
 git push origin --delete "${BRANCH_NAME}"    # delete remote branch
@@ -97,7 +99,7 @@ slack_message "creating branch and pushing"
 git checkout -b "${BRANCH_NAME}"
 cp "${CSV_FILE}" "${HUB_DIR}/model-output/UMass-AR2"
 git add model-output/UMass-AR2/\*
-git commit -m "flu_ar2 build"
+git commit -m "${BRANCH_NAME}"
 git push -u origin "${BRANCH_NAME}"
 PUSH_RESULT=$?
 
@@ -107,8 +109,8 @@ if [ ${PUSH_RESULT} -ne 0 ]; then
   exit 1 # fail
 fi
 
-# the "compare" url should show a "Create pull request" button:
-slack_message "push OK. branch comparison: https://github.com/reichlab/FluSight-forecast-hub/compare/main...${GIT_USER_NAME}:FluSight-forecast-hub:${BRANCH_NAME}?expand=1"
+# this url should show a "Open a pull request" page with a "Create pull request" button:
+slack_message "push OK. branch comparison: https://github.com/${GIT_USER_NAME}/${REPO_NAME}/pull/new/${BRANCH_NAME}"
 
 # upload PDF
 slack_upload "${PDF_FILE}"
