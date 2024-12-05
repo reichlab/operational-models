@@ -1,5 +1,5 @@
 #
-# A wrapper script to run the baseline model, messaging slack with progress and results.
+# A wrapper script to run the a model, messaging slack with progress and results.
 #
 # Environment variables (see https://github.com/reichlab/container-utils/blob/main/README.md for details):
 # - `SLACK_API_TOKEN`, `CHANNEL_ID` (required): used by slack.sh
@@ -42,7 +42,7 @@ slack_message "entered. id='$(id -u -n)', HOME='${HOME}', PWD='${PWD}', DRY_RUN=
 
 slack_message "calling main.py"
 
-OUT_FILE=/tmp/run-baseline-out.txt
+OUT_FILE=/tmp/run-out.txt
 python3 "${APP_DIR}/main.py" "${MAIN_PY_ARGS}" >${OUT_FILE} 2>&1
 PYTHON_RESULT=$?
 
