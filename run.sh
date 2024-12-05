@@ -20,18 +20,30 @@ echo "sourcing: slack.sh"
 source "${APP_DIR}/container-utils/scripts/slack.sh"
 
 #
+# check for additional required environment variables
+#
+
+if [ -z ${MODEL_NAME+x} ] || [ -z ${REPO_NAME+x} ] || [ -z ${REPO_URL+x} ]; then
+  echo "one or more additional required environment variables were unset: MODEL_NAME='${MODEL_NAME}', REPO_NAME='${REPO_NAME}', REPO_URL='${REPO_URL}'"
+  exit 1 # fail
+else
+  echo "found all additional required environment variables"
+fi
+
+#
 # start
 #
 
-slack_message "starting. id='$(id -u -n)', HOME='${HOME}', PWD='${PWD}', DRY_RUN='${DRY_RUN+x}'"
+slack_message "entered. id='$(id -u -n)', HOME='${HOME}', PWD='${PWD}', DRY_RUN='${DRY_RUN+x}'"
 
 #
 # build the model
 #
 
-OUT_FILE=/tmp/run-baseline-out.txt
+slack_message "calling main.py"
 
-python3 "${APP_DIR}/main.py" >${OUT_FILE} 2>&1
+OUT_FILE=/tmp/run-baseline-out.txt
+python3 "${APP_DIR}/main.py" "${MAIN_PY_ARGS}" >${OUT_FILE} 2>&1
 PYTHON_RESULT=$?
 
 if [ ${PYTHON_RESULT} -ne 0 ]; then
@@ -80,16 +92,14 @@ fi
 # the extension, e.g., '2024-01-06-UMass-AR2'
 
 # clone the repo
-REPO_NAME="FluSight-forecast-hub"
 HUB_DIR="${APP_DIR}/${REPO_NAME}"
-git clone https://github.com/reichlab/FluSight-forecast-hub.git "${HUB_DIR}"
+git clone "${REPO_URL}" "${HUB_DIR}"
 cd ${HUB_DIR}
 
 # delete old branch
 CSV_FILE_BASENAME=$(basename "${CSV_FILE%.*}") # Parameter Expansion per: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
-BRANCH_NAME=${CSV_FILE_BASENAME}  # e.g., "2024-11-30-UMass-AR2"
+BRANCH_NAME=${CSV_FILE_BASENAME}               # e.g., "2024-11-30-UMass-AR2"
 
-# todo: 1) Q: need to check for local too, or only remote? 2) delete only if exists
 slack_message "deleting old branch if present. BRANCH_NAME='${BRANCH_NAME}'"
 git branch --delete --force "${BRANCH_NAME}" # delete local branch
 git push origin --delete "${BRANCH_NAME}"    # delete remote branch
@@ -97,8 +107,8 @@ git push origin --delete "${BRANCH_NAME}"    # delete remote branch
 # create new branch, add the .csv file, and push
 slack_message "creating branch and pushing"
 git checkout -b "${BRANCH_NAME}"
-cp "${CSV_FILE}" "${HUB_DIR}/model-output/UMass-AR2"
-git add model-output/UMass-AR2/\*
+cp "${CSV_FILE}" "${HUB_DIR}/model-output/${MODEL_NAME}"
+git add model-output/"${MODEL_NAME}"/\*
 git commit -m "${BRANCH_NAME}"
 git push -u origin "${BRANCH_NAME}"
 PUSH_RESULT=$?
