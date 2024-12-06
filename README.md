@@ -58,6 +58,7 @@ docker run --rm \
 Use the following commands to build and push an image. These use the `flu_ar2` model as an example.
 
 > Note: We build for the `amd64` architecture because that's what most Linux-based servers (including AWS) use natively. This is as opposed to Apple Silicon Macs, which have an `arm64` architecture.
+> Note: For Macs with Apple silicon chips as of this writing, specifying `--platform=linux/amd64` causes the build to fail unless you disable Rosetta in Docker Desktop. For details, see [Buildx throws Illegal Instruction installing ca-certificates when building for linux/amd64 on M2 #7255](https://github.com/docker/for-mac/issues/7255).
 
 ```bash
 cd "path-to-this-repo"
