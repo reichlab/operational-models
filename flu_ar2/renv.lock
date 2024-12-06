@@ -92,12 +92,12 @@
     },
     "arrow": {
       "Package": "arrow",
-      "Version": "18.0.0",
+      "Version": "18.1.0",
       "Source": "Repository",
       "Repository": "https://apache.r-universe.dev",
       "RemoteUrl": "https://github.com/apache/arrow",
-      "RemoteRef": "apache-arrow-18.0.0",
-      "RemoteSha": "9105a4109a80a1c01eabb24ee4b9f7c94ee942cb",
+      "RemoteRef": "apache-arrow-18.1.0",
+      "RemoteSha": "6a0414bd9a91e890ec6a45369bf61f405180628c",
       "Requirements": [
         "R",
         "R6",
@@ -113,7 +113,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "45d1639bb1c90d4a43ed7653d3fae490"
+      "Hash": "d83c5ed8c1a89c5fd5788a8da714364e"
     },
     "askpass": {
       "Package": "askpass",
@@ -674,14 +674,14 @@
     },
     "hubData": {
       "Package": "hubData",
-      "Version": "1.2.3.9000",
+      "Version": "1.3.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "hubverse-org",
       "RemoteRepo": "hubData",
       "RemoteRef": "main",
-      "RemoteSha": "02d41d4fa47b2e166c5d509942a9fd31d638ee25",
+      "RemoteSha": "12410dac86a861785e80b84bfa9b5c5d1565cab5",
       "Requirements": [
         "R",
         "arrow",
@@ -699,18 +699,18 @@
         "yaml",
         "zoltr"
       ],
-      "Hash": "a4f71c81e054fedf1c4f737b16029549"
+      "Hash": "1a6abd9c86a9c4adfceba610867fbf88"
     },
     "hubUtils": {
       "Package": "hubUtils",
-      "Version": "0.2.0.9000",
+      "Version": "0.3.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "hubverse-org",
       "RemoteRepo": "hubUtils",
       "RemoteRef": "main",
-      "RemoteSha": "ed5a77f09e4e6941680ed37a9dba3257044c2ae7",
+      "RemoteSha": "fd6c3a4013f1b6306d2abdc38c7f519736f169b6",
       "Requirements": [
         "R",
         "checkmate",
@@ -729,18 +729,18 @@
         "tibble",
         "utils"
       ],
-      "Hash": "2feb1904dcb147cbd4f2691a5edc728e"
+      "Hash": "573c9c076c15237cb38c09b0218846f7"
     },
     "hubVis": {
       "Package": "hubVis",
-      "Version": "0.1.0.9000",
+      "Version": "0.1.1.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "hubverse-org",
       "RemoteRepo": "hubVis",
       "RemoteRef": "main",
-      "RemoteSha": "b325cecbb69eeee1d1ad956a264d60759101abe9",
+      "RemoteSha": "d6f23598026d8485176e059144251c74e77f62f1",
       "Requirements": [
         "RColorBrewer",
         "cli",
@@ -754,7 +754,7 @@
         "scales",
         "stats"
       ],
-      "Hash": "4984c780020788654f4bbf69f8ddf758"
+      "Hash": "1d748a9f9d3d8cbc507d1e4a114fa1fb"
     },
     "ini": {
       "Package": "ini",

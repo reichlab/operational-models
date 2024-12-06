@@ -66,13 +66,15 @@ RUN apt update && apt install -y gh;
 
 WORKDIR /app
 
+ARG MODEL_DIR
+
 # install required Python packages
-COPY flu_ar2/requirements.txt ./
+COPY "${MODEL_DIR}/requirements.txt" ./
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
 # install required R packages using renv
-COPY flu_ar2/renv.lock ./
+COPY "${MODEL_DIR}/renv.lock" ./
 ENV RENV_PATHS_LIBRARY renv/library
 RUN Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN Rscript -e "renv::restore()"
@@ -81,6 +83,6 @@ RUN Rscript -e "renv::restore()"
 ADD "https://api.github.com/repos/reichlab/container-utils/commits?per_page=1" latest_commit
 RUN git clone https://github.com/reichlab/container-utils.git
 
-COPY flu_ar2/main.py flu_ar2/plot.R flu_ar2/run.sh ./
+COPY run.sh "${MODEL_DIR}/*" ./
 
 CMD ["bash", "/app/run.sh"]
