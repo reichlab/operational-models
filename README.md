@@ -31,7 +31,7 @@ Environment variables: There are two sources of environment variables used by th
 1. We use [reichlab/container-utils](https://github.com/reichlab/container-utils) to manage variables for GitHub credentials and Slack integration (messages and uploads). It requires the following variables (please see the repo's [README.md](https://github.com/reichlab/container-utils/blob/main/README.md) for details):
     - `SLACK_API_TOKEN`, `CHANNEL_ID` (required): used by slack.sh
     - `GH_TOKEN`, `GIT_USER_NAME`, `GIT_USER_EMAIL`, `GIT_CREDENTIALS` (required): used by load-env-vars.sh
-    - `DRY_RUN` (optional): when set (to anything), stops git commit actions from happening (default is to do commits). NB: This feature must be implemented manually for any model that wants to support it.
+    - `DRY_RUN` (optional): when set (to anything), stops git commit actions from happening (default is to do commits).
 2. This repo's [run.sh](run.sh) is parameterized to work with this repo's different models, so running the [Dockerfile](Dockerfile) for a particular model uses the following environment variables. These can be passed via [docker run](https://docs.docker.com/reference/cli/docker/container/run/)'s `--env` or `--env-file` args.
     - `MODEL_NAME` (required): Hub name of the model (i.e., the name used in model outputs). Example: `MODEL_NAME="UMass-AR2"`
     - `REPO_NAME` (required): Name of the repository being cloned. Example: `REPO_NAME="FluSight-forecast-hub"`
