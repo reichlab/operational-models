@@ -125,4 +125,3 @@ idforecastutils::plot_quantile_pmf_outputs_pdf(
   quantile_title = "Inc Flu Hosp",
   pmf_title = "Flu Hosp Rate Change"
 )
-grDevices::dev.off()
