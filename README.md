@@ -9,7 +9,7 @@ This project supports containerizing its models via reusable [Dockerfile](Docker
 - Create a subfolder for your model. This is called the `MODEL_DIR`. An example is `flu_ar2`.
 - Add a `README.md` and your executable files (e.g., .R and .py files) to that folder (do not use subfolders).
 - Generate `requirements.txt` and `renv.lock` files as documented below.
-- Build and run the image as documented below. You will likely want to create a .env file for running the image (see `--env-file` at https://docs.docker.com/reference/cli/docker/container/run/#env ).
+- Build and run the image as documented below. You will likely want to create a .env file for running the image (see `--env-file` at https://docs.docker.com/reference/cli/docker/container/run/#env ). NB: Do not use double quotes around variable values - see [Handle quotes in --env-file values consistently with Linux/WSL2 "source"ing #3630](https://github.com/docker/cli/issues/3630).
 
 ## To build the image
 
@@ -84,7 +84,7 @@ A `renv.lock` file is generated via the following steps. As noted above, the "in
 - install renv via `Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"`
 - create a project directory via `mkdir proj ; cd proj`
 - initialize renv via `Rscript -e "renv::init(bare = TRUE)"`
-- install required R libraries via CRAN. NB: these will vary depending on the model:
+- install required R libraries. NB: these will vary depending on the model:
    ```bash
    Rscript -e "renv::install(c('lubridate', 'readr', 'remotes'))"
    Rscript -e "renv::install('arrow', repos = c('https://apache.r-universe.dev', 'https://cran.r-project.org'))"
