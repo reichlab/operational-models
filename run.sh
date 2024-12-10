@@ -43,7 +43,7 @@ slack_message "entered. id='$(id -u -n)', HOME='${HOME}', PWD='${PWD}', DRY_RUN=
 slack_message "calling main.py"
 
 OUT_FILE=/tmp/run-out.txt
-python3 "${APP_DIR}/main.py" "${MAIN_PY_ARGS}" >${OUT_FILE} 2>&1
+python3 "${APP_DIR}"/main.py ${MAIN_PY_ARGS} >${OUT_FILE} 2>&1  # NB: important to not double-quote MAIN_PY_ARGS
 PYTHON_RESULT=$?
 
 if [ ${PYTHON_RESULT} -ne 0 ]; then
@@ -54,36 +54,36 @@ if [ ${PYTHON_RESULT} -ne 0 ]; then
 fi
 
 #
-# python had no errors. find PDF and CSV files, add new CSV file to new branch, and then upload the PDF to slack.
-# example output files (under /app):
+# python had no errors. find CSV (1) and PDF (1+) files, add new CSV file to new branch, and then upload the PDFs to
+# slack. example output files (under /app):
 #   ./output/model-output/UMass-AR2/2024-01-06-UMass-AR2.csv
 #   ./output/plots/2024-01-06-UMass-AR2.pdf
 
 slack_message "python OK; collecting PDF and CSV files"
 
-CSV_FILES=$(find "${APP_DIR}/output" -type f -name "*.csv")
-NUM_CSV_FILES=$(echo "${CSV_FILES}" | wc -l)
+CSV_FILES=($(find "${APP_DIR}/output" -type f -name "*.csv")) # creates an array from find output
+NUM_CSV_FILES=${#CSV_FILES[@]}
 if [ "${NUM_CSV_FILES}" -ne 1 ]; then
-  slack_message "CSV_FILES error: not exactly 1 CSV file. CSV_FILES='${CSV_FILES}', NUM_CSV_FILES=${NUM_CSV_FILES}"
+  slack_message "CSV_FILES error: not exactly 1 CSV file. CSV_FILES=" "${CSV_FILES[@]}" ", NUM_CSV_FILES=${NUM_CSV_FILES}"
   slack_upload ${OUT_FILE}
   exit 1 # fail
 fi
 
-PDF_FILES=$(find "${APP_DIR}/output" -type f -name "*.pdf")
-NUM_PDF_FILES=$(echo "${PDF_FILES}" | wc -l)
-if [ "${NUM_PDF_FILES}" -ne 1 ]; then
-  slack_message "PDF_FILES error: not exactly 1 PDF file. PDF_FILES='${PDF_FILES}', NUM_PDF_FILES=${NUM_PDF_FILES}"
+PDF_FILES=($(find "${APP_DIR}/output" -type f -name "*.pdf")) # parens: find output -> array
+NUM_PDF_FILES=${#PDF_FILES[@]}
+if [ "${NUM_PDF_FILES}" -eq 0 ]; then
+  slack_message "PDF_FILES error: no PDF files"
   slack_upload ${OUT_FILE}
   exit 1 # fail
 fi
 
-# found exactly one CSV and one PDF file
-CSV_FILE=${CSV_FILES}
-PDF_FILE=${PDF_FILES}
-slack_message "found: CSV_FILE='${CSV_FILE}', PDF_FILE='${PDF_FILE}'"
+# found 1 CSV and 1+ PDF file
+CSV_FILE=${CSV_FILES[0]}
+slack_message "found: CSV_FILE=${CSV_FILE}, PDF_FILES=$(IFS=,; echo "${PDF_FILES[*]}")"  # array -> comma-sep string
 
 if [ -n "${DRY_RUN+x}" ]; then # yes DRY_RUN
   slack_message "DRY_RUN set, exiting"
+  slack_upload ${OUT_FILE}
   exit 0 # success
 fi
 
@@ -119,11 +119,13 @@ if [ ${PUSH_RESULT} -ne 0 ]; then
   exit 1 # fail
 fi
 
-# this url should show a "Open a pull request" page with a "Create pull request" button:
+# this url shows an "Open a pull request" form with a "Create pull request" button:
 slack_message "push OK. branch comparison: https://github.com/${GIT_USER_NAME}/${REPO_NAME}/pull/new/${BRANCH_NAME}"
 
-# upload PDF
-slack_upload "${PDF_FILE}"
+# upload PDF(s)
+for PDF_FILE in "${PDF_FILES[@]}"; do
+  slack_upload "${PDF_FILE}"
+done
 
 #
 # done
