@@ -24,11 +24,11 @@ forecasts <- hub_con |>
   dplyr::collect() |>
   dplyr::left_join(locations)
 
-hub_con <- hubData::connect_model_output("intermediate-output/model-output")
-forecasts <- hub_con |>
-  dplyr::filter(reference_date == ref_date) |>
-  dplyr::collect() |>
-  dplyr::left_join(locations)
+# hub_con <- hubData::connect_model_output("intermediate-output/model-output")
+# forecasts <- hub_con |>
+#   dplyr::filter(reference_date == ref_date) |>
+#   dplyr::collect() |>
+#   dplyr::left_join(locations)
 
 selected_model <- "UMass-ar6_pooled"
 forecasts <- forecasts |>
