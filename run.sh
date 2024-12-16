@@ -23,24 +23,24 @@ source "${APP_DIR}/container-utils/scripts/slack.sh"
 # check for additional required environment variables
 #
 
-if [ -z ${MODEL_NAME+x} ] || [ -z ${REPO_NAME+x} ] || [ -z ${REPO_URL+x} ]; then
-  echo "one or more additional required environment variables were unset: MODEL_NAME='${MODEL_NAME}', REPO_NAME='${REPO_NAME}', REPO_URL='${REPO_URL}'"
+if [ -z ${MODEL_NAME+x} ] || [ -z ${REPO_NAME+x} ] || [ -z ${REPO_URL+x} ] || [ -z ${REPO_UPSTREAM_URL+x} ]; then
+  slack_message "one or more additional required environment variables were unset: MODEL_NAME='${MODEL_NAME}', REPO_NAME='${REPO_NAME}', REPO_URL='${REPO_URL}', REPO_UPSTREAM_URL='${REPO_UPSTREAM_URL}'"
   exit 1 # fail
 else
-  echo "found all additional required environment variables"
+  slack_message "found all additional required environment variables"
 fi
 
 #
 # start
 #
 
-slack_message "entered. id='$(id -u -n)', HOME='${HOME}', PWD='${PWD}', DRY_RUN='${DRY_RUN+x}'"
+slack_message "entered. id=$(id -u -n), HOME=${HOME}, PWD=${PWD}, DRY_RUN='${DRY_RUN+x}', GIT_USER_NAME=${GIT_USER_NAME}, MODEL_NAME=${MODEL_NAME}, REPO_NAME=${REPO_NAME}, REPO_URL=${REPO_URL}, REPO_UPSTREAM_URL=${REPO_UPSTREAM_URL}"
 
 #
 # build the model
 #
 
-slack_message "calling main.py"
+slack_message "${MODEL_NAME}: calling main.py"
 
 OUT_FILE=/tmp/run-out.txt
 python3 "${APP_DIR}"/main.py ${MAIN_PY_ARGS} >${OUT_FILE} 2>&1  # NB: important to not double-quote MAIN_PY_ARGS
@@ -48,7 +48,7 @@ PYTHON_RESULT=$?
 
 if [ ${PYTHON_RESULT} -ne 0 ]; then
   # python had errors
-  slack_message "python failed"
+  slack_message "${MODEL_NAME}: python failed"
   slack_upload ${OUT_FILE}
   exit 1 # fail
 fi
@@ -59,12 +59,12 @@ fi
 #   ./output/model-output/UMass-AR2/2024-01-06-UMass-AR2.csv
 #   ./output/plots/2024-01-06-UMass-AR2.pdf
 
-slack_message "python OK; collecting PDF and CSV files"
+slack_message "${MODEL_NAME}: python OK; collecting PDF and CSV files"
 
 CSV_FILES=($(find "${APP_DIR}/output" -type f -name "*.csv")) # creates an array from find output
 NUM_CSV_FILES=${#CSV_FILES[@]}
 if [ "${NUM_CSV_FILES}" -ne 1 ]; then
-  slack_message "CSV_FILES error: not exactly 1 CSV file. CSV_FILES=" "${CSV_FILES[@]}" ", NUM_CSV_FILES=${NUM_CSV_FILES}"
+  slack_message "${MODEL_NAME}: CSV_FILES error: not exactly 1 CSV file. CSV_FILES=" "${CSV_FILES[@]}" ", NUM_CSV_FILES=${NUM_CSV_FILES}"
   slack_upload ${OUT_FILE}
   exit 1 # fail
 fi
@@ -72,17 +72,17 @@ fi
 PDF_FILES=($(find "${APP_DIR}/output" -type f -name "*.pdf")) # parens: find output -> array
 NUM_PDF_FILES=${#PDF_FILES[@]}
 if [ "${NUM_PDF_FILES}" -eq 0 ]; then
-  slack_message "PDF_FILES error: no PDF files"
+  slack_message "${MODEL_NAME}: PDF_FILES error: no PDF files"
   slack_upload ${OUT_FILE}
   exit 1 # fail
 fi
 
 # found 1 CSV and 1+ PDF file
 CSV_FILE=${CSV_FILES[0]}
-slack_message "found: CSV_FILE=${CSV_FILE}, PDF_FILES=$(IFS=,; echo "${PDF_FILES[*]}")"  # array -> comma-sep string
+slack_message "${MODEL_NAME}: found: CSV_FILE=${CSV_FILE}, PDF_FILES=$(IFS=,; echo "${PDF_FILES[*]}")"  # array -> comma-sep string
 
 if [ -n "${DRY_RUN+x}" ]; then # yes DRY_RUN
-  slack_message "DRY_RUN set, exiting"
+  slack_message "${MODEL_NAME}: DRY_RUN set, exiting"
   slack_upload ${OUT_FILE}
   exit 0 # success
 fi
@@ -93,19 +93,28 @@ fi
 
 # clone the repo
 HUB_DIR="${APP_DIR}/${REPO_NAME}"
+slack_message "${MODEL_NAME}: cloning ${REPO_URL} -> ${HUB_DIR}"
 git clone "${REPO_URL}" "${HUB_DIR}"
 cd ${HUB_DIR}
+
+# sync fork w/upstream and then push to the fork
+slack_message "${MODEL_NAME}: updating fork from upstream"
+git remote add upstream "${REPO_UPSTREAM_URL}"
+git fetch upstream # pull down the latest source from original repo
+git checkout main
+git merge upstream/main # update fork from original repo to keep up with their changes
+git push origin main    # sync with fork
 
 # delete old branch
 CSV_FILE_BASENAME=$(basename "${CSV_FILE%.*}") # Parameter Expansion per: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
 BRANCH_NAME=${CSV_FILE_BASENAME}               # e.g., "2024-11-30-UMass-AR2"
 
-slack_message "deleting old branch if present. BRANCH_NAME='${BRANCH_NAME}'"
+slack_message "${MODEL_NAME}: deleting old branch if present. BRANCH_NAME='${BRANCH_NAME}'"
 git branch --delete --force "${BRANCH_NAME}" # delete local branch
 git push origin --delete "${BRANCH_NAME}"    # delete remote branch
 
 # create new branch, add the .csv file, and push
-slack_message "creating branch and pushing"
+slack_message "${MODEL_NAME}: creating branch and pushing"
 git checkout -b "${BRANCH_NAME}"
 cp "${CSV_FILE}" "${HUB_DIR}/model-output/${MODEL_NAME}"
 git add model-output/"${MODEL_NAME}"/\*
@@ -114,13 +123,13 @@ git push -u origin "${BRANCH_NAME}"
 PUSH_RESULT=$?
 
 if [ ${PUSH_RESULT} -ne 0 ]; then
-  slack_message "push failed"
+  slack_message "${MODEL_NAME}: push failed"
   slack_upload ${OUT_FILE}
   exit 1 # fail
 fi
 
 # this url shows an "Open a pull request" form with a "Create pull request" button:
-slack_message "push OK. branch comparison: https://github.com/${GIT_USER_NAME}/${REPO_NAME}/pull/new/${BRANCH_NAME}"
+slack_message "${MODEL_NAME}: push OK. branch comparison: ${REPO_UPSTREAM_URL}/compare/main...${GIT_USER_NAME}:${REPO_NAME}:${BRANCH_NAME}?expand=1"
 
 # upload PDF(s)
 for PDF_FILE in "${PDF_FILES[@]}"; do

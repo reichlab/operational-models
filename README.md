@@ -15,7 +15,7 @@ This project supports containerizing its models via reusable [Dockerfile](Docker
 
 Environment variables: Building the [Dockerfile](Dockerfile) for a particular model uses the following environment variables:
 
-- (required) `MODEL_DIR`: specifies the directory name (not full path) of the model being built. Example: `MODEL_DIR="flu_ar2"`.
+- (required) `MODEL_DIR`: specifies the directory name (not full path) of the model being built. Example: `MODEL_DIR=flu_ar2`.
 
 Example build command:
 
@@ -33,11 +33,12 @@ Environment variables: There are two sources of environment variables used by th
     - `GH_TOKEN`, `GIT_USER_NAME`, `GIT_USER_EMAIL`, `GIT_CREDENTIALS` (required): used by load-env-vars.sh
     - `DRY_RUN` (optional): when set (to anything), stops git commit actions from happening (default is to do commits).
 2. This repo's [run.sh](run.sh) is parameterized to work with this repo's different models, so running the [Dockerfile](Dockerfile) for a particular model uses the following environment variables. These can be passed via [docker run](https://docs.docker.com/reference/cli/docker/container/run/)'s `--env` or `--env-file` args.
-    - `MODEL_NAME` (required): Hub name of the model (i.e., the name used in model outputs). Example: `MODEL_NAME="UMass-AR2"`
-    - `REPO_NAME` (required): Name of the repository being cloned. Example: `REPO_NAME="FluSight-forecast-hub"`
-    - `REPO_URL` (required): Full URL of the repository being cloned. Example: `REPO_URL="https://github.com/reichlab/FluSight-forecast-hub.git"`
+    - `MODEL_NAME` (required): Hub name of the model (i.e., the name used in model outputs). Example: `MODEL_NAME=UMass-AR2`
+    - `REPO_NAME` (required): Name of the repository being cloned. Example: `REPO_NAME=FluSight-forecast-hub`
+    - `REPO_URL` (required): Full URL of the repository being cloned, excluding ".git". Example: `REPO_URL=https://github.com/reichlab/FluSight-forecast-hub`
+    - `REPO_UPSTREAM_URL` (required): Full URL of the repository that `REPO_URL` was forked from, excluding ".git". Example: `REPO_UPSTREAM_URL=https://github.com/cdcepi/FluSight-forecast-hub`
     - `MAIN_PY_ARGS` (optional): Specifies arguments that are passed through to [run.sh](run.sh)'s call to the particular model's `main.py`. Note that these arguments are model-specific. For example, the
-      _flu_flusion_ model accepts two args: `MAIN_PY_ARGS="--today_date=2024-11-27 --short_run=True"` whereas the
+      _flu_flusion_ model accepts two args: `MAIN_PY_ARGS=--today_date=2024-11-27 --short_run=True` whereas the
       `flu_ar2` model accepts only the former arg.
 
 Example run command:
@@ -47,8 +48,7 @@ docker run --rm \
   --env-file path_to_env_file/git-and-slack-credentials.env \
   --env MODEL_NAME="UMass-AR2" \
   --env REPO_NAME="FluSight-forecast-hub" \
-  --env REPO_URL="https://github.com/reichlab/FluSight-forecast-hub.git" \
-  --env MAIN_PY_ARGS="--today_date=2024-11-27" \
+  ... \
   --env DRY_RUN=1 \
   flu_ar2:1.0
 ```
