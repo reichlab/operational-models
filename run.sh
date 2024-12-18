@@ -34,7 +34,7 @@ fi
 # start
 #
 
-slack_message "entered. id=$(id -u -n), HOME=${HOME}, PWD=${PWD}, DRY_RUN='${DRY_RUN+x}', GIT_USER_NAME=${GIT_USER_NAME}, MODEL_NAME=${MODEL_NAME}, REPO_NAME=${REPO_NAME}, REPO_URL=${REPO_URL}, REPO_UPSTREAM_URL=${REPO_UPSTREAM_URL}"
+slack_message "${MODEL_NAME}: entered. id=$(id -u -n), HOME=${HOME}, PWD=${PWD}, DRY_RUN='${DRY_RUN+x}', GIT_USER_NAME=${GIT_USER_NAME}, MODEL_NAME=${MODEL_NAME}, REPO_NAME=${REPO_NAME}, REPO_URL=${REPO_URL}, REPO_UPSTREAM_URL=${REPO_UPSTREAM_URL}"
 
 #
 # build the model
@@ -128,8 +128,11 @@ if [ ${PUSH_RESULT} -ne 0 ]; then
   exit 1 # fail
 fi
 
-# this url shows an "Open a pull request" form with a "Create pull request" button:
-slack_message "${MODEL_NAME}: push OK. branch comparison: ${REPO_UPSTREAM_URL}/compare/main...${GIT_USER_NAME}:${REPO_NAME}:${BRANCH_NAME}?expand=1"
+# this url shows an "Open a pull request" form with a "Create pull request" button. ex:
+# https://github.com/reichlab/FluSight-forecast-hub/pull/new/2024-12-21-UMass-AR2 , which redirects to:
+# https://github.com/cdcepi/FluSight-forecast-hub/compare/main...reichlab:FluSight-forecast-hub:2024-12-21-UMass-AR2?expand=1
+BRANCH_COMPARE_URL="${REPO_URL}/pull/new/${BRANCH_NAME}"
+slack_message "${MODEL_NAME}: push OK. branch comparison: ${BRANCH_COMPARE_URL}"
 
 # upload PDF(s)
 for PDF_FILE in "${PDF_FILES[@]}"; do
@@ -140,5 +143,5 @@ done
 # done
 #
 
-slack_message "done"
+slack_message "${MODEL_NAME}: done"
 exit 0 # success
