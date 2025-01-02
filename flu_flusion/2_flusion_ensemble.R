@@ -10,7 +10,7 @@ hub_con <- hubData::connect_model_output("intermediate-output/model-output")
 
 # load components and create ensembles
 model_out_tbl <- dplyr::collect(hub_con) |>
-  dplyr::filter(horizon >= 0) |>
+  dplyr::filter(reference_date == ref_date, horizon >= 0) |>
   hubEnsembles::simple_ensemble(model_id = "UMass-flusion")
 
 # add categorical target predictions
