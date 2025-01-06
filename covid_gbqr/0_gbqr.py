@@ -18,7 +18,7 @@ from idmodels.gbqr import GBQRModel
     help="Perform a short run."
 )
 def main(reference_date: str, short_run: bool):
-    """Generate flu predictions from gbqr model."""
+    """Generate covid predictions from gbqr model."""
     reference_date = datetime.date.fromisoformat(reference_date)
     
     model_config = SimpleNamespace(
@@ -35,7 +35,7 @@ def main(reference_date: str, short_run: bool):
         reporting_adj = False,
 
         # data sources and adjustments for reporting issues
-        sources = ["flusurvnet", "nhsn", "ilinet"],
+        sources = ["nhsn"],
 
         # fit locations separately or jointly
         fit_locations_separately = False,
@@ -45,9 +45,9 @@ def main(reference_date: str, short_run: bool):
     )
     
     run_config = SimpleNamespace(
-        disease="flu",
+        disease="covid",
         ref_date=reference_date,
-        output_root=Path("intermediate-output/model-output"),
+        output_root=Path("output/model-output"),
         artifact_store_root=None,
         save_feat_importance=False,
         max_horizon=4,

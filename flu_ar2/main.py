@@ -15,7 +15,7 @@ from idmodels.sarix import SARIXModel
     help="Date to use as effective model run date (YYYY-MM-DD)",
 )
 def main(today_date: str | None = None):
-    """Get clade counts and save to S3 bucket."""
+    """Generate flu predictions from AR(2) model and plot them."""
     try:
         today_date = datetime.date.fromisoformat(today_date)
     except (TypeError, ValueError):  # if today_date is None or a bad format
