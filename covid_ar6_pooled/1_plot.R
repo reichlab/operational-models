@@ -12,7 +12,6 @@ library(idforecastutils)
 args <- commandArgs(trailingOnly = TRUE)
 
 ref_date <- as.Date(args[1])
-# ref_date <- as.Date("2024-11-23")
 data_date <- ref_date - 3
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
