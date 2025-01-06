@@ -18,9 +18,9 @@ from idmodels.gbqr import GBQRModel
     help="Perform a short run."
 )
 def main(reference_date: str, short_run: bool):
+    """Generate covid predictions from gbqr model."""
     reference_date = datetime.date.fromisoformat(reference_date)
     
-    """Get clade counts and save to S3 bucket."""    
     model_config = SimpleNamespace(
         model_class = "gbqr",
         model_name = "gbqr",

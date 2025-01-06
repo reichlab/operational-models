@@ -16,7 +16,7 @@ import subprocess
     help="Perform a short run."
 )
 def main(today_date: str | None = None, short_run: bool = False):
-    """Get clade counts and save to S3 bucket."""
+    """Generate covid predictions from gbqr model and plot them."""
     try:
         today_date = datetime.date.fromisoformat(today_date)
     except (TypeError, ValueError):  # if today_date is None or a bad format

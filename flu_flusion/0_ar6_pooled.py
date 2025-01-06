@@ -18,7 +18,7 @@ from idmodels.sarix import SARIXModel
     help="Perform a short run."
 )
 def main(reference_date: str, short_run: bool):
-    """Get clade counts and save to S3 bucket."""
+    """Generate flu predictions from AR(6) model."""
     reference_date = datetime.date.fromisoformat(reference_date)
     
     model_config = SimpleNamespace(
