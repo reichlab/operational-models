@@ -1,11 +1,13 @@
-import click
 import datetime
-from dateutil import relativedelta
 from pathlib import Path
-import subprocess
 from types import SimpleNamespace
 
+import click
+from dateutil import relativedelta
 from idmodels.sarix import SARIXModel
+
+from util.utils import run_script
+
 
 @click.command()
 @click.option(
@@ -21,11 +23,11 @@ def main(today_date: str | None = None):
     except (TypeError, ValueError):  # if today_date is None or a bad format
         today_date = datetime.date.today()
     reference_date = today_date + relativedelta.relativedelta(weekday=5)
-    
+
     model_config = SimpleNamespace(
         model_class = "sarix",
         model_name = "AR2",
-        
+
         # data sources and adjustments for reporting issues
         sources = ["nhsn"],
 
@@ -45,11 +47,11 @@ def main(today_date: str | None = None):
         # sharing of information about parameters
         theta_pooling="none",
         sigma_pooling="none",
-        
+
         # covariates
         x = []
     )
-    
+
     run_config = SimpleNamespace(
         disease="flu",
         ref_date=reference_date,
@@ -73,11 +75,11 @@ def main(today_date: str | None = None):
         num_samples = 2000,
         num_chains = 1
     )
-    
+
     model = SARIXModel(model_config)
     model.run(run_config)
-    
-    subprocess.run(["Rscript", "plot.R", str(reference_date)])
+
+    run_script(["Rscript", "plot.R", str(reference_date)])
 
 
 if __name__ == "__main__":

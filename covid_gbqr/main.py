@@ -1,7 +1,10 @@
-import click
 import datetime
+
+import click
 from dateutil import relativedelta
-import subprocess
+
+from util.utils import run_script
+
 
 @click.command()
 @click.option(
@@ -28,9 +31,9 @@ def main(today_date: str | None = None, short_run: bool = False):
     else:
         short_run_flag = []
     
-    subprocess.run(["python", "0_gbqr.py",
-                    "--reference_date", str(reference_date)] + short_run_flag)
-    subprocess.run(["Rscript", "1_plot.R", str(reference_date)])
+    for script_args in [["python", "0_gbqr.py", "--reference_date", str(reference_date)] + short_run_flag,
+                        ["Rscript", "1_plot.R", str(reference_date)]]:
+        run_script(script_args)
 
 
 if __name__ == "__main__":

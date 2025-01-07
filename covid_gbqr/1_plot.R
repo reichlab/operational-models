@@ -24,8 +24,14 @@ forecasts <- hub_con |>
   dplyr::collect() |>
   dplyr::left_join(locations)
 
-# target_data <- readr::read_csv("https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/target-data/covid-hospital-admissions.csv") |>
-target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
+raw_target_data <- try(
+  readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")),
+  silent = TRUE)
+if (inherits(raw_target_data, "try-error")) {
+  stop(paste0('error reading csv file: ', conditionMessage(attr(raw_target_data, "condition"))))
+}
+
+target_data <- raw_target_data |>
   dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total COVID-19 Admissions"))
 colnames(target_data) <- c("date", "abbreviation", "value")
 target_data <- target_data |>
