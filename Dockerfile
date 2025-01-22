@@ -75,7 +75,7 @@ RUN pip3 install -r requirements.txt
 
 # install required R packages using renv
 COPY "${MODEL_DIR}/renv.lock" ./
-ENV RENV_PATHS_LIBRARY renv/library
+ENV RENV_PATHS_LIBRARY="renv/library"
 RUN Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN Rscript -e "renv::restore()"
 
