@@ -82,9 +82,9 @@ A `renv.lock` file is generated via the following steps. As noted above, the "in
 - start a fresh temporary [rocker/r-ver:4.3.2](https://hub.docker.com/layers/rocker/r-ver/4.3.2/images/sha256-8b25859fbf21a7075bbc2285ebfe06bb8a14dd83e4576df11ff46f14a8620636?context=explore) container via `docker run --rm -it --name temp_container rocker/r-ver:4.3.2 /bin/bash`
 - install the required OS libraries and applications (see "install general OS utilities" and "install OS binaries required by R packages" in the [Dockerfile](Dockerfile))
 - install renv via `Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"`
-- create a project directory via `mkdir proj ; cd proj`
+- create a project directory via `mkdir /proj ; cd /proj`
 - initialize renv via `Rscript -e "renv::init(bare = TRUE)"`
-- install required R libraries. NB: these will vary depending on the model:
+- install required R libraries. NB: these will vary depending on the model (see each model's `README.md` for the actual list). For example:
    ```bash
    Rscript -e "renv::install(c('lubridate', 'readr', 'remotes'))"
    Rscript -e "renv::install('arrow', repos = c('https://apache.r-universe.dev', 'https://cran.r-project.org'))"
