@@ -34,7 +34,6 @@ Environment variables: There are two sources of environment variables used by th
     - `DRY_RUN` (optional): when set (to anything), stops git commit actions from happening (default is to do commits).
 2. This repo's [run.sh](run.sh) is parameterized to work with this repo's different models, so running the [Dockerfile](Dockerfile) for a particular model uses the following environment variables. These can be passed via [docker run](https://docs.docker.com/reference/cli/docker/container/run/)'s `--env` or `--env-file` args.
     - `MODEL_NAME` (required): Hub name of the model (i.e., the name used in model outputs). Example: `MODEL_NAME=UMass-AR2`
-    - `REPO_NAME` (required): Name of the repository being cloned. Example: `REPO_NAME=FluSight-forecast-hub`
     - `REPO_URL` (required): Full URL of the repository being cloned, excluding ".git". Example: `REPO_URL=https://github.com/reichlab/FluSight-forecast-hub`
     - `REPO_UPSTREAM_URL` (required): Full URL of the repository that `REPO_URL` was forked from, excluding ".git". Example: `REPO_UPSTREAM_URL=https://github.com/cdcepi/FluSight-forecast-hub`
     - `MAIN_PY_ARGS` (optional): Specifies arguments that are passed through to [run.sh](run.sh)'s call to the particular model's `main.py`. Note that these arguments are model-specific. For example, the
@@ -47,7 +46,6 @@ Example run command:
 docker run --rm \
   --env-file path_to_env_file/git-and-slack-credentials.env \
   --env MODEL_NAME="UMass-AR2" \
-  --env REPO_NAME="FluSight-forecast-hub" \
   ... \
   --env DRY_RUN=1 \
   flu_ar2:1.0
