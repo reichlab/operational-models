@@ -23,8 +23,8 @@ source "${APP_DIR}/container-utils/scripts/slack.sh"
 # check for additional required environment variables
 #
 
-if [ -z ${MODEL_NAME+x} ] || [ -z ${REPO_NAME+x} ] || [ -z ${REPO_URL+x} ] || [ -z ${REPO_UPSTREAM_URL+x} ]; then
-  slack_message "one or more additional required environment variables were unset: MODEL_NAME='${MODEL_NAME}', REPO_NAME='${REPO_NAME}', REPO_URL='${REPO_URL}', REPO_UPSTREAM_URL='${REPO_UPSTREAM_URL}'"
+if [ -z ${MODEL_NAME+x} ] || [ -z ${REPO_URL+x} ] || [ -z ${REPO_UPSTREAM_URL+x} ]; then
+  slack_message "one or more additional required environment variables were unset: MODEL_NAME='${MODEL_NAME}', REPO_URL='${REPO_URL}', REPO_UPSTREAM_URL='${REPO_UPSTREAM_URL}'"
   exit 1 # fail
 else
   slack_message "found all additional required environment variables"
@@ -34,7 +34,7 @@ fi
 # start
 #
 
-slack_message "${MODEL_NAME}: entered. id=$(id -u -n), HOME=${HOME}, PWD=${PWD}, DRY_RUN='${DRY_RUN+x}', GIT_USER_NAME=${GIT_USER_NAME}, MODEL_NAME=${MODEL_NAME}, REPO_NAME=${REPO_NAME}, REPO_URL=${REPO_URL}, REPO_UPSTREAM_URL=${REPO_UPSTREAM_URL}"
+slack_message "${MODEL_NAME}: entered. id=$(id -u -n), HOME=${HOME}, PWD=${PWD}, DRY_RUN='${DRY_RUN+x}', GIT_USER_NAME=${GIT_USER_NAME}, MODEL_NAME=${MODEL_NAME}, REPO_URL=${REPO_URL}, REPO_UPSTREAM_URL=${REPO_UPSTREAM_URL}"
 
 #
 # build the model
@@ -92,7 +92,7 @@ fi
 # the extension, e.g., '2024-01-06-UMass-AR2'
 
 # clone the repo
-HUB_DIR="${APP_DIR}/${REPO_NAME}"
+HUB_DIR="${APP_DIR}/hub-repo"  # hard-coded repo name
 slack_message "${MODEL_NAME}: cloning ${REPO_URL} -> ${HUB_DIR}"
 git clone "${REPO_URL}" "${HUB_DIR}"
 cd ${HUB_DIR}
