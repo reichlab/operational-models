@@ -77,18 +77,34 @@ Generating this file is somewhat Python tooling-specific. For example, [pipenv](
 
 A `renv.lock` file is generated via the following steps. As noted above, the "install required R libraries via CRAN" step will vary depending on the individual model's needs. Below we show the commands for the `flu_ar2` model, but you will need to change them for yours.
 
-- start a fresh temporary [rocker/r-ver:4.3.2](https://hub.docker.com/layers/rocker/r-ver/4.3.2/images/sha256-8b25859fbf21a7075bbc2285ebfe06bb8a14dd83e4576df11ff46f14a8620636?context=explore) container via `docker run --rm -it --name temp_container rocker/r-ver:4.3.2 /bin/bash`
-- install the required OS libraries and applications (see "install general OS utilities" and "install OS binaries required by R packages" in the [Dockerfile](Dockerfile))
-- install renv via `Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"`
-- create a project directory via `mkdir /proj ; cd /proj`
-- initialize renv via `Rscript -e "renv::init(bare = TRUE)"`
-- install required R libraries. NB: these will vary depending on the model (see each model's `README.md` for the actual list). For example:
+1. start a fresh temporary [rocker/r-ver:4.4.1](https://hub.docker.com/layers/rocker/r-ver/4.4.1/images/sha256-f3ef082e63ca36547fcf0c05a0d74255ddda6ca7bd88f1dae5a44ce117fc3804) container via:
+   ```bash
+   docker run --rm -it --name temp_container rocker/r-ver:4.4.1 /bin/bash
+   ```
+2. install the required OS libraries and applications (see "install general OS utilities" and "install OS binaries required by R packages" in the [Dockerfile](Dockerfile))
+3. specify the [p3m repository snapshot to a particular date](https://p3m.dev/client/#/repos/cran/setup?distribution=ubuntu-22.04&r_environment=other&snapshot=2025-02-05) (this allows binary packages to be installed for faster builds) (see the [rocker-project guidance for switching the default CRAN mirror](https://rocker-project.org/images/versioned/r-ver.html#switch-the-default-cran-mirror)):
+   ```bash
+   /rocker_scripts/setup_R.sh https://p3m.dev/cran/__linux__/jammy/2025-02-05
+   ```
+4. install renv via:
+   ```bash
+   Rscript -e "install.packages('renv')"
+   ```
+5. create a project directory and initialize renv via:
+   ```bash
+   mkdir /proj ; cd /proj
+   Rscript -e "renv::init(bare = TRUE)"
+   ```
+6. install required R libraries. NB: these will vary depending on the model (see each model's `README.md` for the actual list). For example:
    ```bash
    Rscript -e "renv::install(c('lubridate', 'readr', 'remotes'))"
-   Rscript -e "renv::install('arrow', repos = c('https://apache.r-universe.dev', 'https://cran.r-project.org'))"
+   Rscript -e "renv::install('arrow')"
    Rscript -e "renv::install('reichlab/zoltr')"
-   Rscript -e "renv::install('hubverse-org/hubData')"
-   Rscript -e "renv::install('hubverse-org/hubVis')"
+   Rscript -e "renv::install('hubverse-org/hubData@*release')"
+   Rscript -e "renv::install('hubverse-org/hubVis@*release')"
    ```
-- create `renv.lock` from within the R interpreter (this fails in bash) via `renv::settings$snapshot.type('all') ; renv::snapshot()`
-- copy the new `/proj/renv.lock` file out from the container
+7. create `renv.lock` from within the R interpreter (this fails in bash) via:
+   ```R
+   renv::settings$snapshot.type('all') ; renv::snapshot()
+   ```
+8. copy the new `/proj/renv.lock` file out from the container

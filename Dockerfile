@@ -1,4 +1,4 @@
-FROM rocker/r-ver:4.3.2
+FROM rocker/r-ver:4.4.1
 
 # install general OS utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -73,10 +73,14 @@ COPY "${MODEL_DIR}/requirements.txt" ./
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-# install required R packages using renv
+# install required R packages using renv - see https://rstudio.github.io/renv/articles/docker.html
 COPY "${MODEL_DIR}/renv.lock" ./
 ENV RENV_PATHS_LIBRARY="renv/library"
-RUN Rscript -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
+
+# Guidance for setting default CRAN mirror: https://rocker-project.org/images/versioned/r-ver.html#switch-the-default-cran-mirror
+# Posit Public Package Manager setup: https://p3m.dev/client/#/repos/cran/setup
+RUN /rocker_scripts/setup_R.sh https://p3m.dev/cran/__linux__/jammy/2025-02-05
+RUN Rscript -e "install.packages('renv')"
 RUN Rscript -e "renv::restore()"
 
 # clone https://github.com/reichlab/container-utils. ADD is a hack ala https://stackoverflow.com/questions/35134713/disable-cache-for-specific-run-commands

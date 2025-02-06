@@ -14,15 +14,15 @@ This should result in a model output file and pdfs with plots under `covid_gbqr/
 
 # requirements.txt renv and details
 
-`requirements.txt` and `renv.lock` were generated according to [README.md](..%2FREADME.md). For `renv.lock`, we installed these specific libraries:
+`requirements.txt` and `renv.lock` were generated according to [README.md](../README.md). For `renv.lock`, we installed these specific libraries:
 
 ```bash
 Rscript -e "renv::install(c('lubridate', 'readr', 'dplyr'))"
-Rscript -e "renv::install('arrow', repos = c('https://apache.r-universe.dev', 'https://cran.r-project.org'))"
-Rscript -e "renv::install('git::https://github.com/reichlab/zoltr')"
-Rscript -e "renv::install('git::https://github.com/hubverse-org/hubData')"
-Rscript -e "renv::install('git::https://github.com/hubverse-org/hubVis')"
-Rscript -e "renv::install('git::https://github.com/hubverse-org/hubEnsembles')"
-Rscript -e "renv::install('git::https://github.com/reichlab/covidData')"
-Rscript -e "renv::install('git::https://github.com/reichlab/idforecastutils')"
+Rscript -e "renv::install('arrow')"
+Rscript -e "renv::install('reichlab/zoltr')"
+Rscript -e "renv::install('hubverse-org/hubData@*release')"
+Rscript -e "renv::install('hubverse-org/hubVis@*release')"
+Rscript -e "renv::install('hubverse-org/hubEnsembles@*release')"
+Rscript -e "renv::install('reichlab/covidData')"
+Rscript -e "renv::install('reichlab/idforecastutils')"
 ```

@@ -16,15 +16,15 @@ This should result in a model output file and a pdf with a plot under `flu_flusi
 
 # requirements.txt renv and details
 
-`requirements.txt` and `renv.lock` were generated according to [README.md](..%2FREADME.md). For `renv.lock`, we installed these specific libraries:
+`requirements.txt` and `renv.lock` were generated according to [README.md](../README.md). For `renv.lock`, we installed these specific libraries:
 
 ```bash
 Rscript -e "renv::install(c('dplyr'))"
-Rscript -e "renv::install('arrow', repos = c('https://apache.r-universe.dev', 'https://cran.r-project.org'))"
+Rscript -e "renv::install('arrow')"
 Rscript -e "renv::install('reichlab/zoltr')"
-Rscript -e "renv::install('hubverse-org/hubData')"
-Rscript -e "renv::install('hubverse-org/hubVis')"
-Rscript -e "renv::install('hubverse-org/hubEnsembles')"
+Rscript -e "renv::install('hubverse-org/hubData@*release')"
+Rscript -e "renv::install('hubverse-org/hubVis@*release')"
+Rscript -e "renv::install('hubverse-org/hubEnsembles@*release')"
 Rscript -e "renv::install('reichlab/covidData')"
 Rscript -e "renv::install('reichlab/idforecastutils')"
 ```
