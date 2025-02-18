@@ -14,7 +14,7 @@ python main.py --today_date=2024-01-06
 
 This should result in a model output file and a pdf with a plot under `flu_ar2/output/`.
 
-# requirements.txt renv and details
+# requirements.txt and renv.lock details
 
 `requirements.txt` and `renv.lock` were generated according to [README.md](../README.md). For `renv.lock`, we installed these specific libraries:
 

@@ -54,17 +54,17 @@ if [ ${PYTHON_RESULT} -ne 0 ]; then
 fi
 
 #
-# python had no errors. find CSV (1) and PDF (1+) files, add new CSV file to new branch, and then upload the PDFs to
-# slack. example output files (under /app):
+# python had no errors. find CSV/PARQUET (1) and PDF (1+) files, add new CSV/PARQUET file to new branch, and then upload
+# the PDFs to slack. example output files (under /app):
 #   ./output/model-output/UMass-AR2/2024-01-06-UMass-AR2.csv
 #   ./output/plots/2024-01-06-UMass-AR2.pdf
 
-slack_message "${MODEL_NAME}: python OK; collecting PDF and CSV files"
+slack_message "${MODEL_NAME}: python OK; collecting PDF and CSV/PARQUET files"
 
-CSV_FILES=($(find "${APP_DIR}/output" -type f -name "*.csv")) # creates an array from find output
-NUM_CSV_FILES=${#CSV_FILES[@]}
-if [ "${NUM_CSV_FILES}" -ne 1 ]; then
-  slack_message "${MODEL_NAME}: CSV_FILES error: not exactly 1 CSV file. CSV_FILES=" "${CSV_FILES[@]}" ", NUM_CSV_FILES=${NUM_CSV_FILES}"
+MODEL_OUTPUT_FILES=($(find "${APP_DIR}/output/model-output/${MODEL_NAME}" -type f \( -name "*.csv" -o -name "*.parquet" \) )) # creates an array from find output
+NUM_MODEL_OUTPUT_FILES=${#MODEL_OUTPUT_FILES[@]}
+if [ "${NUM_MODEL_OUTPUT_FILES}" -ne 1 ]; then
+  slack_message "${MODEL_NAME}: MODEL_OUTPUT_FILES error: not exactly 1 CSV/PARQUET file. NUM_MODEL_OUTPUT_FILES=${NUM_MODEL_OUTPUT_FILES}"
   slack_upload ${OUT_FILE}
   exit 1 # fail
 fi
@@ -77,9 +77,9 @@ if [ "${NUM_PDF_FILES}" -eq 0 ]; then
   exit 1 # fail
 fi
 
-# found 1 CSV and 1+ PDF file
-CSV_FILE=${CSV_FILES[0]}
-slack_message "${MODEL_NAME}: found: CSV_FILE=${CSV_FILE}, PDF_FILES=$(IFS=,; echo "${PDF_FILES[*]}")"  # array -> comma-sep string
+# found 1 CSV/PARQUET and 1+ PDF file
+MODEL_OUTPUT_FILE=${MODEL_OUTPUT_FILES[0]}
+slack_message "${MODEL_NAME}: found: MODEL_OUTPUT_FILE=${MODEL_OUTPUT_FILE}, PDF_FILES=$(IFS=,; echo "${PDF_FILES[*]}")"  # array -> comma-sep string
 
 if [ -n "${DRY_RUN+x}" ]; then # yes DRY_RUN
   slack_message "${MODEL_NAME}: DRY_RUN set, exiting"
@@ -106,8 +106,8 @@ git merge upstream/main # update fork from original repo to keep up with their c
 git push origin main    # sync with fork
 
 # delete old branch
-CSV_FILE_BASENAME=$(basename "${CSV_FILE%.*}") # Parameter Expansion per: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
-BRANCH_NAME=${CSV_FILE_BASENAME}               # e.g., "2024-11-30-UMass-AR2"
+MODEL_OUTPUT_FILE_BASENAME=$(basename "${MODEL_OUTPUT_FILE%.*}") # Parameter Expansion per: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_02
+BRANCH_NAME=${MODEL_OUTPUT_FILE_BASENAME}               # e.g., "2024-11-30-UMass-AR2"
 
 slack_message "${MODEL_NAME}: deleting old branch if present. BRANCH_NAME='${BRANCH_NAME}'"
 git branch --delete --force "${BRANCH_NAME}" # delete local branch
@@ -116,7 +116,7 @@ git push origin --delete "${BRANCH_NAME}"    # delete remote branch
 # create new branch, add the .csv file, and push
 slack_message "${MODEL_NAME}: creating branch and pushing"
 git checkout -b "${BRANCH_NAME}"
-cp "${CSV_FILE}" "${HUB_DIR}/model-output/${MODEL_NAME}"
+cp "${MODEL_OUTPUT_FILE}" "${HUB_DIR}/model-output/${MODEL_NAME}"
 git add model-output/"${MODEL_NAME}"/\*
 git commit -m "${BRANCH_NAME}"
 git push -u origin "${BRANCH_NAME}"

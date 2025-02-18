@@ -12,7 +12,7 @@ python main.py
 
 This should result in a model output file and pdfs with plots under `covid_ar6_pooled/output`.
 
-# requirements.txt renv and details
+# requirements.txt and renv.lock details
 
 `requirements.txt` and `renv.lock` were generated according to [README.md](../README.md). For `renv.lock`, we installed these specific libraries:
 
@@ -24,5 +24,5 @@ Rscript -e "renv::install('hubverse-org/hubData@*release')"
 Rscript -e "renv::install('hubverse-org/hubVis@*release')"
 Rscript -e "renv::install('hubverse-org/hubEnsembles@*release')"
 Rscript -e "renv::install('reichlab/covidData')"
-Rscript -e "renv::install('reichlab/idforecastutils')"
+Rscript -e "renv::install('reichlab/idforecastutils')"  # NB: installs dev versions of above
 ```
