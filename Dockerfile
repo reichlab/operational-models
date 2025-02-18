@@ -2,7 +2,7 @@ FROM rocker/r-ver:4.4.1
 
 # install general OS utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git
+    git cmake
 
 # install OS binaries required by R packages - via rocker-versioned2/scripts/install_tidyverse.sh
 RUN apt-get install -y --no-install-recommends \
@@ -57,12 +57,6 @@ ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
 ENV PYTHON_VERSION=3.12.7
 RUN pyenv install ${PYTHON_VERSION}
 RUN pyenv global ${PYTHON_VERSION}
-
-# install the `gh` GitHub CLI binary
-RUN apt update && apt install -y curl gpg
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg;
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null;
-RUN apt update && apt install -y gh;
 
 WORKDIR /app
 
