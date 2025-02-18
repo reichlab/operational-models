@@ -18,6 +18,7 @@ required_quantiles <- c(0.01, 0.025, seq(0.05, 0.95, by = 0.05), 0.975, 0.99)
 target_data <- readr::read_csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/target-data/target-hospital-admissions.csv")
 target_ts <- target_data |>
   dplyr::select("date", "location", "value") |>
+  dplyr::arrange(dplyr::desc(date)) |>
   dplyr::rename(time_index = date, observation = value)
 
 # set up variations of baseline to fit
@@ -49,46 +50,6 @@ component_outputs <- outputs_list[["baselines"]] |>
     )
   )
 model_names <- unique(component_outputs$model_id)
-
-# save and plot individual baseline model forecasts
-trendsEnsemble::save_model_out_tbl(component_outputs, path = "output/model-output", extension = "parquet")
-
-
-data_start <- reference_date - 12 * 7
-data_end <- reference_date + 6 * 7
-
-model_names |>
-  purrr::walk(.f = function(current_model) {
-    p <- hubVis::plot_step_ahead_model_output(
-      component_outputs |>
-        dplyr::left_join(locations, by = "location") |>
-        dplyr::filter(model_id == current_model, output_type == "quantile") |>
-        dplyr::mutate(output_type_id = as.numeric(output_type_id)) |>
-        hubUtils::as_model_out_tbl(),
-      target_data |>
-        dplyr::filter(date >= data_start, date <= data_end) |>
-        dplyr::mutate(observation = value),
-      x_col_name = "target_end_date",
-      x_target_col_name = "date",
-      intervals = c(0.5, 0.95),
-      facet = "location_name",
-      facet_scales = "free_y",
-      facet_nrow = 14,
-      use_median_as_point = TRUE,
-      interactive = FALSE,
-      show_plot = FALSE,
-      group = "reference_date"
-    )
-
-    plot_folder <- file.path("output/plots/", current_model)
-    if (!file.exists(plot_folder)) dir.create(plot_folder, recursive = TRUE)
-
-    results_path <- file.path(plot_folder, paste0(reference_date, "-", current_model, ".pdf"))
-    grDevices::pdf(results_path, width = 12, height = 30)
-    print(p)
-    grDevices::dev.off()
-  })
-
 
 # pmf forecasts
 trends_ensemble_raw <- outputs_list[["ensemble"]] |>
