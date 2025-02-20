@@ -2,7 +2,7 @@ FROM rocker/r-ver:4.4.1
 
 # install general OS utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git cmake
+    git cmake jq
 
 # install OS binaries required by R packages - via rocker-versioned2/scripts/install_tidyverse.sh
 RUN apt-get install -y --no-install-recommends \
