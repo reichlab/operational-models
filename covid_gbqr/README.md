@@ -23,7 +23,7 @@ Rscript -e "renv::install('reichlab/zoltr')"
 Rscript -e "renv::install('hubverse-org/hubData@*release')"
 Rscript -e "renv::install('hubverse-org/hubVis@*release')"
 Rscript -e "renv::install('hubverse-org/hubEnsembles@*release')"
-Rscript -e "renv::install('Chicago/RSocrata')"  # required by covidData, but CRAN install fails
+Rscript -e "renv::install('Chicago/RSocrata')"  # required by covidData, but package was removed from CRAN
 Rscript -e "renv::install('reichlab/covidData')"
 Rscript -e "renv::install('reichlab/idforecastutils')"  # NB: installs dev versions of above
 ```
