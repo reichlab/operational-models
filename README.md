@@ -81,10 +81,10 @@ A `renv.lock` file is generated via the following steps. As noted above, the "in
    ```bash
    docker run --rm -it --name temp_container rocker/r-ver:4.4.1 /bin/bash
    ```
-2. install the required OS libraries and applications (see "install general OS utilities" and "install OS binaries required by R packages" in the [Dockerfile](Dockerfile))
-3. specify the [p3m repository snapshot to a particular date](https://p3m.dev/client/#/repos/cran/setup?distribution=ubuntu-22.04&r_environment=other&snapshot=2025-02-05) (this allows binary packages to be installed for faster builds) (see the [rocker-project guidance for switching the default CRAN mirror](https://rocker-project.org/images/versioned/r-ver.html#switch-the-default-cran-mirror)):
+2. install the required OS libraries and applications (see "install general OS utilities" and "install OS binaries required by R packages", and "install system libraries required by pyenv" in the [Dockerfile](Dockerfile)). note that you do not copy the "RUN" part of each line, just the `apt-get` commands and their args.
+3. specify the [p3m repository snapshot to a particular date](https://p3m.dev/client/#/repos/cran/setup?distribution=ubuntu-22.04&r_environment=other&snapshot=2025-09-11) (this allows binary packages to be installed for faster builds) (see the [rocker-project guidance for switching the default CRAN mirror](https://rocker-project.org/images/versioned/r-ver.html#switch-the-default-cran-mirror)):
    ```bash
-   /rocker_scripts/setup_R.sh https://p3m.dev/cran/__linux__/jammy/2025-02-05
+   /rocker_scripts/setup_R.sh https://p3m.dev/cran/__linux__/jammy/2025-09-11
    ```
 4. install renv via:
    ```bash

@@ -1,0 +1,4 @@
+.venv
+covid_ar6_pooled/.venv
+__pycache__/
+*.pyc
