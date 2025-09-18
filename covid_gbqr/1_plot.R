@@ -14,7 +14,7 @@ args <- commandArgs(trailingOnly = TRUE)
 ref_date <- as.Date(args[1])
 data_date <- ref_date - 3
 
-locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
+locations <- read.csv("https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
 selected_model <- "UMass-gbqr"
 
