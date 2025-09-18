@@ -14,8 +14,7 @@ args <- commandArgs(trailingOnly = TRUE)
 ref_date <- as.Date(args[1])
 data_date <- ref_date - 3
 
-locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
-
+locations <- read.csv("https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
 hub_con <- hubData::connect_model_output("output/model-output")
 forecasts <- hub_con |>
