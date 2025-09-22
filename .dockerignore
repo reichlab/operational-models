@@ -1,4 +1,7 @@
-.venv
-covid_ar6_pooled/.venv
+.venv/
 __pycache__/
 *.pyc
+**/output/
+.git/
+.idea/
+**/.DS_Store
