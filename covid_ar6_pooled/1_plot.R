@@ -63,7 +63,7 @@ dev.off()
 
 
 
-data_start <- as.Date("2024-09-01")
+data_start <- as.Date("2025-09-01")
 data_end <- ref_date + 6 * 7
 
 p <- plot_step_ahead_model_output(
@@ -86,7 +86,7 @@ data_2022_23 <- target_data |>
   dplyr::filter(date >= "2022-09-01", date <= "2023-06-01", !is.na(location))
 p <- p +
   ggplot2::geom_line(
-    data = data_2022_23 |> dplyr::mutate(date = date + 2 * 365),
+    data = data_2022_23 |> dplyr::mutate(date = date + 3 * 365),
     mapping = ggplot2::aes(x = date, y = value), color = 'grey'
   )
 
@@ -94,7 +94,15 @@ data_2023_24 <- target_data |>
   dplyr::filter(date >= "2023-09-01", date <= "2024-06-01", !is.na(location))
 p <- p +
   ggplot2::geom_line(
-    data = data_2023_24 |> dplyr::mutate(date = date + 365),
+    data = data_2023_24 |> dplyr::mutate(date = date + 2 * 365),
+    mapping = ggplot2::aes(x = date, y = value), color = 'grey'
+  )
+
+data_2024_25 <- target_data |>
+  dplyr::filter(date >= "2024-09-01", date <= "2025-06-01", !is.na(location))
+p <- p +
+  ggplot2::geom_line(
+    data = data_2024_25 |> dplyr::mutate(date = date + 365),
     mapping = ggplot2::aes(x = date, y = value), color = 'grey'
   )
 
