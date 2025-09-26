@@ -92,7 +92,7 @@ data_2022_23 <- target_data |>
 p <- p +
   ggplot2::geom_line(
     data = data_2022_23 |> dplyr::mutate(date = date + 3 * 365),
-    mapping = ggplot2::aes(x = date, y = value), color = 'grey'
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2022-23"), color = 'lightgrey'
   )
 
 data_2023_24 <- target_data |>
@@ -100,7 +100,7 @@ data_2023_24 <- target_data |>
 p <- p +
   ggplot2::geom_line(
     data = data_2023_24 |> dplyr::mutate(date = date + 2 * 365),
-    mapping = ggplot2::aes(x = date, y = value), color = 'grey'
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2023-24"), color = 'grey'
   )
 
 data_2024_25 <- target_data |>
@@ -108,7 +108,16 @@ data_2024_25 <- target_data |>
 p <- p +
   ggplot2::geom_line(
     data = data_2024_25 |> dplyr::mutate(date = date + 365),
-    mapping = ggplot2::aes(x = date, y = value), color = 'grey'
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2024-25"), color = 'darkgrey'
+  )
+
+p <- p +
+  ggplot2::scale_linetype_manual(
+    name = "Past Season",
+    values = c(
+      "2022-23" = "solid",
+      "2023-24" = "solid",
+      "2024-25" = "solid")
   )
 
 p <- p + ggplot2::theme_bw()
