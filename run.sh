@@ -83,6 +83,12 @@ slack_message "${MODEL_NAME}: found: MODEL_OUTPUT_FILE=${MODEL_OUTPUT_FILE}, PDF
 
 if [ -n "${DRY_RUN+x}" ]; then # yes DRY_RUN
   slack_message "${MODEL_NAME}: DRY_RUN set, exiting"
+
+  # upload PDF(s)
+  for PDF_FILE in "${PDF_FILES[@]}"; do
+    slack_upload "${PDF_FILE}"
+  done
+
   slack_upload ${OUT_FILE}
   exit 0 # success
 fi
