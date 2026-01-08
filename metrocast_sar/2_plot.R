@@ -16,8 +16,7 @@ data_date <- ref_date - 3
 locations <- read.csv(
   "https://raw.githubusercontent.com/reichlab/flu-metrocast/refs/heads/main/auxiliary-data/locations.csv"
 )
-# outputs_path <- "model-output"
-outputs_path <- "output/model-output"
+outputs_path <- "model-output"
 forecasts <- read.csv(paste0(
   outputs_path,
   "/UMass-SAR/",

@@ -22,11 +22,10 @@ locations_meta <- locations |>
   )
 
 # load components and rename locations
-# outputs_path <- "intermediate-output/model-output"
-outputs_path <- "output/model-output/"
+outputs_path <- "intermediate-output/model-output"
 model_outputs <- read.csv(paste0(
   outputs_path,
-  #  "/UMass-SAR/",
+  "/UMass-SAR/",
   ref_date,
   "-UMass-SAR.csv"
 )) |>
