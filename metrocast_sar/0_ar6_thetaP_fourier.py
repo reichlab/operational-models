@@ -59,7 +59,7 @@ def main(reference_date: str, short_run: bool):
         output_root=Path("intermediate-output/model-output"),
         artifact_store_root=None,
         max_horizon=4,
-        states=["08", "13", "18", "23", "24", "25", "27", "45", "48", "49", "51"],
+        states=["08", "13", "18", "23", "24", "25", "27", "41", "45", "48", "49", "51"],
         hsas=["688", "711", "754", "760", "795", "796", #colorado
             "275", #indiana
             "143", "154", "157", "190", "193", #georgia
@@ -69,6 +69,7 @@ def main(reference_date: str, short_run: bool):
             "869", "875", "941" #maryland
             "9", "17", #maine
             "286", "289", "540", "588", "941", #minnesota
+            "689", "705", "719", "782", "973", #oregon
             "160", "182", "184", "212", "244", "246", #south-carolina
             "408", "410", "413", "415", "425", "453", #texas
             "703", "708", "744", #utah
