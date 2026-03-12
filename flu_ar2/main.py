@@ -4,7 +4,7 @@ from dateutil import relativedelta
 from pathlib import Path
 import subprocess
 
-from idmodels.config import (DataSource, Disease, PoolingStrategy, PowerTransform, SARIXModelConfig, SARIXRunConfig)
+from idmodels.config import (DataSource, Disease, PoolingStrategy, PowerTransform, RunConfig, SARIXModelConfig)
 from idmodels.sarix import SARIXModel
 
 @click.command()
@@ -46,10 +46,14 @@ def main(today_date: str | None = None):
         sigma_pooling=PoolingStrategy.NONE,
 
         # covariates
-        x = []
+        x = [],
+
+        num_warmup = 2000,
+        num_samples = 2000,
+        num_chains = 1
     )
 
-    run_config = SARIXRunConfig(
+    run_config = RunConfig(
         disease=Disease.FLU,
         ref_date=reference_date,
         output_root=Path("output/model-output"),
@@ -69,9 +73,6 @@ def main(today_date: str | None = None):
                     '0.25', '0.3', '0.35', '0.4', '0.45', '0.5',
                     '0.55', '0.6', '0.65', '0.7', '0.75', '0.8',
                     '0.85', '0.9', '0.95', '0.975', '0.99'],
-        num_warmup = 2000,
-        num_samples = 2000,
-        num_chains = 1
     )
 
     model = SARIXModel(model_config)

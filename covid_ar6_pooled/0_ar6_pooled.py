@@ -2,7 +2,7 @@ import click
 import datetime
 from pathlib import Path
 
-from idmodels.config import (DataSource, Disease, PoolingStrategy, PowerTransform, SARIXModelConfig, SARIXRunConfig)
+from idmodels.config import (DataSource, Disease, PoolingStrategy, PowerTransform, RunConfig, SARIXModelConfig)
 from idmodels.sarix import SARIXModel
 
 @click.command()
@@ -45,10 +45,14 @@ def main(reference_date: str, short_run: bool):
         sigma_pooling=PoolingStrategy.NONE,
 
         # covariates
-        x = []
+        x = [],
+
+        num_warmup = 2000,
+        num_samples = 2000,
+        num_chains = 1
     )
 
-    run_config = SARIXRunConfig(
+    run_config = RunConfig(
         disease=Disease.COVID,
         ref_date=reference_date,
         output_root=Path("output/model-output"),
@@ -68,15 +72,12 @@ def main(reference_date: str, short_run: bool):
                   '0.25', '0.3', '0.35', '0.4', '0.45', '0.5',
                   '0.55', '0.6', '0.65', '0.7', '0.75', '0.8',
                   '0.85', '0.9', '0.95', '0.975', '0.99'],
-        num_warmup = 2000,
-        num_samples = 2000,
-        num_chains = 1
     )
     if short_run:
         run_config.q_levels = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975]
         run_config.q_labels = ['0.025', '0.1', '0.25', '0.5', '0.75', '0.9', '0.975']
-        run_config.num_warmup = 100
-        run_config.num_samples = 100
+        model_config.num_warmup = 100
+        model_config.num_samples = 100
 
     model = SARIXModel(model_config)
     model.run(run_config)

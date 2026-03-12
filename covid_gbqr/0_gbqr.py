@@ -2,7 +2,7 @@ import click
 import datetime
 from pathlib import Path
 
-from idmodels.config import (DataSource, Disease, PowerTransform, GBQRModelConfig, GBQRRunConfig)
+from idmodels.config import (DataSource, Disease, PowerTransform, GBQRModelConfig, RunConfig)
 from idmodels.gbqr import GBQRModel
 
 @click.command()
@@ -32,6 +32,7 @@ def main(reference_date: str, short_run: bool):
 
         # adjustments to reporting
         reporting_adj = False,
+        save_feat_importance = False,
 
         # data sources and adjustments for reporting issues
         sources = [DataSource.NHSN],
@@ -43,12 +44,11 @@ def main(reference_date: str, short_run: bool):
         power_transform = PowerTransform.FOURTH_ROOT,
     )
 
-    run_config = GBQRRunConfig(
+    run_config = RunConfig(
         disease=Disease.COVID,
         ref_date=reference_date,
         output_root=Path("output/model-output"),
         artifact_store_root=None,
-        save_feat_importance=False,
         max_horizon=4,
         states=["US", "01", "02", "04", "05", "06", "08", "09", "10", "11",
                 "12", "13", "15", "16", "17", "18", "19", "20", "21", "22",
