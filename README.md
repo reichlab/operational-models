@@ -71,7 +71,48 @@ Each model has different R and Python library requirements. These are captured v
 
 ## `requirements.txt`
 
-Generating this file is somewhat Python tooling-specific. For example, [pipenv](https://pipenv.pypa.io/en/latest/) uses `pipenv requirements > requirements.txt`.
+Python dependencies are managed with a two-file approach using `pip-compile` [1] (from [pip-tools](https://pip-tools.readthedocs.io/)).
+
+| File               | Purpose                                     | Edit?          |
+|--------------------|---------------------------------------------|----------------|
+| `requirements.in`  | Direct dependencies only                    | Yes — by hand  |
+| `requirements.txt` | Fully pinned lockfile (all transitive deps) | No — generated |
+
+- `requirements.txt` is committed to the repo and used by Docker (`pip install -r requirements.txt`).
+- `requirements.in` uses the `.in` convention from `pip-tools`, indicating it is the input to a compile step.
+
+### Regenerating requirements.txt
+
+First, create a new venv and then ensure `pip-tools` is installed in the project's virtual environment (one-time setup). Note: Here, `python3` is assumed to resolve to the appropriate version (say via `pyenv` + `.python-version`):
+
+```bash
+cd "path-to-this-repo"
+python3 -m venv .venv
+.venv/bin/python -m ensurepip --upgrade
+.venv/bin/python -m pip install pip-tools
+```
+
+Then run from the following command from the repo root after editing `requirements.in` or to refresh pinned versions, where `<app>` is one of covid_ar6_pooled, covid_gbqr, flu_ar2, flu_flusion, or flu_trends_ensemble:
+
+```bash
+.venv/bin/pip-compile <app>/requirements.in --output-file <app>/requirements.txt
+```
+
+To regenerate all apps at once:
+
+```bash
+for app in covid_ar6_pooled covid_gbqr flu_ar2 flu_flusion flu_trends_ensemble; do
+  .venv/bin/pip-compile "$app/requirements.in" --output-file "$app/requirements.txt"
+done
+```
+
+Workflow:
+
+1. Add or change a direct dependency in `requirements.in`
+2. Regenerate `requirements.txt` with the command above
+3. Commit both files
+
+[1] A note re: tooling: We wanted to use https://github.com/astral-sh/uv to generate requirements.txt files from requirements.in ones, but found that its resolver's handling of VCS-based dependencies (mainly iddata via idmodels) caused problems compared to a workflow based on `pip-compile` from the pip-tools package.
 
 ## `renv.lock`
 
