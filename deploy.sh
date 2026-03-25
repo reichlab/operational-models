@@ -20,7 +20,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 readonly DOCKER_ORG="reichlab"
 readonly AWS_REGION="us-east-1"
-readonly ALL_MODELS=(covid_ar6_pooled covid_gbqr flu_ar2 flu_flusion flu_trends_ensemble)
+readonly ALL_MODELS=(covid_ar6_pooled covid_gbqr flu_ar2 flu_flusion flu_trends_ensemble temp)
 
 # Map model_dir  →  ECS task-definition family name
 task_def_name() {

@@ -1,0 +1,12 @@
+{
+  "R": {
+    "Version": "4.4.1",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://p3m.dev/cran/2025-09-11"
+      }
+    ]
+  },
+  "Packages": {}
+}
