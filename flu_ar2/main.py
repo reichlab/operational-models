@@ -1,20 +1,18 @@
-import click
 import datetime
-from dateutil import relativedelta
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
-from idmodels.config import (DataSource, Disease, PoolingStrategy, PowerTransform, RunConfig, SARIXModelConfig)
+import click
+from dateutil import relativedelta
+from iddata.enums import Disease
+from idmodels.config import PoolingStrategy, PowerTransform, RunConfig, SARIXModelConfig, SourceType
 from idmodels.sarix import SARIXModel
 
+
 @click.command()
-@click.option(
-    "--today_date",
-    type=str,
-    required=False,
-    help="Date to use as effective model run date (YYYY-MM-DD)",
-)
-def main(today_date: str | None = None):
+@click.option("--today_date", type=str, required=False)
+@click.option("--short_run", is_flag=True)
+def main(today_date: str | None = None, short_run: bool = False):
     """Generate flu predictions from AR(2) model and plot them."""
     try:
         today_date = datetime.date.fromisoformat(today_date)
@@ -23,35 +21,21 @@ def main(today_date: str | None = None):
     reference_date = today_date + relativedelta.relativedelta(weekday=5)
 
     model_config = SARIXModelConfig(
-        model_name = "AR2",
-
-        # data sources and adjustments for reporting issues
-        sources = [DataSource.NHSN],
-
-        # fit locations separately or jointly
-        fit_locations_separately = True,
-
-        # SARI model parameters
-        p = 2,
-        P = 0,
-        d = 0,
-        D = 0,
-        season_period = 1,
-
-        # power transform applied to surveillance signals
-        power_transform = PowerTransform.FOURTH_ROOT,
-
-        # sharing of information about parameters
+        model_name="AR2",
+        sources=[SourceType.NHSN],
+        fit_locations_separately=True,
+        p=2,
+        P=0,
+        d=0,
+        D=0,
+        season_period=1,
+        power_transform=PowerTransform.FOURTH_ROOT,
         theta_pooling=PoolingStrategy.NONE,
         sigma_pooling=PoolingStrategy.NONE,
-
-        # covariates
-        x = [],
-
-        num_warmup = 2000,
-        num_samples = 2000,
-        num_chains = 1
-    )
+        x=[],
+        num_warmup=2000,
+        num_samples=2000,
+        num_chains=1)
 
     run_config = RunConfig(
         disease=Disease.FLU,
@@ -66,14 +50,19 @@ def main(today_date: str | None = None):
                 "44", "45", "46", "47", "48", "49", "50", "51", "53", "54",
                 "55", "56", "72"],
         hsas=[],
-        q_levels = [0.01, 0.025, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
-                    0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70,
-                    0.75, 0.80, 0.85, 0.90, 0.95, 0.975, 0.99],
-        q_labels = ['0.01', '0.025', '0.05', '0.1', '0.15', '0.2',
-                    '0.25', '0.3', '0.35', '0.4', '0.45', '0.5',
-                    '0.55', '0.6', '0.65', '0.7', '0.75', '0.8',
-                    '0.85', '0.9', '0.95', '0.975', '0.99'],
-    )
+        q_levels=[0.01, 0.025, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
+                  0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70,
+                  0.75, 0.80, 0.85, 0.90, 0.95, 0.975, 0.99],
+        q_labels=["0.01", "0.025", "0.05", "0.1", "0.15", "0.2",
+                  "0.25", "0.3", "0.35", "0.4", "0.45", "0.5",
+                  "0.55", "0.6", "0.65", "0.7", "0.75", "0.8",
+                  "0.85", "0.9", "0.95", "0.975", "0.99"])
+
+    if short_run:
+        run_config.q_levels = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975]
+        run_config.q_labels = ["0.025", "0.1", "0.25", "0.5", "0.75", "0.9", "0.975"]
+        model_config.num_warmup = 100
+        model_config.num_samples = 100
 
     model = SARIXModel(model_config)
     model.run(run_config)
