@@ -29,8 +29,8 @@ _Q_LABELS = ["0.01", "0.025", "0.05", "0.1", "0.15", "0.2", "0.25", "0.3", "0.35
 
 
 @click.command()
-@click.option("--today_date", type=str, required=False)
-@click.option("--short_run", is_flag=True)
+@click.option("--today_date", type=str, required=False, help="Date to use as effective model run date (YYYY-MM-DD)")
+@click.option("--short_run", is_flag=True, help="Run with reduced parameters for faster testing")
 def main(today_date: str | None = None, short_run: bool = False):
     """Generate flu predictions from flusion ensemble (AR6 + GBQR) and plot them."""
     try:
@@ -67,18 +67,7 @@ def main(today_date: str | None = None, short_run: bool = False):
         fit_locations_separately=False,
         power_transform=PowerTransform.FOURTH_ROOT)
 
-    ar6_run_config = RunConfig(
-        disease=Disease.FLU,
-        ref_date=reference_date,
-        output_root=Path("intermediate-output/model-output"),
-        artifact_store_root=None,
-        max_horizon=4,
-        states=_STATES,
-        hsas=[],
-        q_levels=_Q_LEVELS,
-        q_labels=_Q_LABELS)
-
-    gbqr_run_config = RunConfig(
+    run_config = RunConfig(
         disease=Disease.FLU,
         ref_date=reference_date,
         output_root=Path("intermediate-output/model-output"),
@@ -90,15 +79,16 @@ def main(today_date: str | None = None, short_run: bool = False):
         q_labels=_Q_LABELS)
 
     if short_run:
-        for rc in (ar6_run_config, gbqr_run_config):
-            rc.q_levels = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975]
-            rc.q_labels = ["0.025", "0.1", "0.25", "0.5", "0.75", "0.9", "0.975"]
+        run_config.q_levels = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975]
+        run_config.q_labels = ["0.025", "0.1", "0.25", "0.5", "0.75", "0.9", "0.975"]
         ar6_model_config.num_warmup = 100
         ar6_model_config.num_samples = 100
         gbqr_model_config.num_bags = 10
 
-    SARIXModel(ar6_model_config).run(ar6_run_config)
-    GBQRModel(gbqr_model_config).run(gbqr_run_config)
+    ar6_model = SARIXModel(ar6_model_config)
+    ar6_model.run(run_config)
+    gbqr_model = GBQRModel(gbqr_model_config)
+    gbqr_model.run(run_config)
 
     subprocess.run(["Rscript", "2_flusion_ensemble.R", str(reference_date)])
     subprocess.run(["Rscript", "3_plot.R", str(reference_date)])

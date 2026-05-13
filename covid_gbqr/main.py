@@ -10,8 +10,8 @@ from idmodels.gbqr import GBQRModel
 
 
 @click.command()
-@click.option("--today_date", type=str, required=False)
-@click.option("--short_run", is_flag=True)
+@click.option("--today_date", type=str, required=False, help="Date to use as effective model run date (YYYY-MM-DD)")
+@click.option("--short_run", is_flag=True, help="Run with reduced parameters for faster testing")
 def main(today_date: str | None = None, short_run: bool = False):
     """Generate covid predictions from gbqr model and plot them."""
     try:
