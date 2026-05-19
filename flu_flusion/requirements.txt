@@ -36,9 +36,9 @@ frozenlist==1.8.0
     #   aiosignal
 fsspec==2026.2.0
     # via s3fs
-iddata @ git+https://github.com/reichlab/iddata@af9b0a1bc7b11e9f642d2e6d7fdf725c14986cc0
+iddata @ git+https://github.com/reichlab/iddata@ba1be8a957a6012c83ceff670e6e38b75b6f219b
     # via idmodels
-idmodels @ git+https://github.com/reichlab/idmodels@8ed3d9dfd9c5aa6bb1fae77b829a9ac5df107221
+idmodels @ git+https://github.com/reichlab/idmodels@eb28011508e45f09327636bcb47af00b7f7c3957
     # via -r flu_flusion/requirements.in
 idna==3.11
     # via yarl
