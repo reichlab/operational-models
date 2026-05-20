@@ -38,7 +38,7 @@ fsspec==2026.2.0
     # via s3fs
 iddata @ git+https://github.com/reichlab/iddata@ba1be8a957a6012c83ceff670e6e38b75b6f219b
     # via idmodels
-idmodels @ git+https://github.com/reichlab/idmodels@eb28011508e45f09327636bcb47af00b7f7c3957
+idmodels @ git+https://github.com/reichlab/idmodels@423e67e1d6f5812f3473ae688fb15f663821e347
     # via -r flu_flusion/requirements.in
 idna==3.11
     # via yarl
