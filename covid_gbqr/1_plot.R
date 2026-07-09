@@ -24,7 +24,6 @@ forecasts <- hub_con |>
   dplyr::collect() |>
   dplyr::left_join(locations)
 
-# target_data <- readr::read_csv("https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/target-data/covid-hospital-admissions.csv") |>
 target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
   dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total COVID-19 Admissions"))
 colnames(target_data) <- c("date", "abbreviation", "value")
@@ -82,7 +81,7 @@ p <- plot_step_ahead_model_output(
 )
 
 data_2022_23 <- target_data |>
-  dplyr::filter(date >= "2022-09-01", date <= "2023-06-01", !is.na(location))
+  dplyr::filter(date >= "2022-09-01", date <= "2023-08-31", !is.na(location))
 p <- p +
   ggplot2::geom_line(
     data = data_2022_23 |> dplyr::mutate(date = date + 3 * 365),
@@ -90,7 +89,7 @@ p <- p +
   )
 
 data_2023_24 <- target_data |>
-  dplyr::filter(date >= "2023-09-01", date <= "2024-06-01", !is.na(location))
+  dplyr::filter(date >= "2023-09-01", date <= "2024-08-31", !is.na(location))
 p <- p +
   ggplot2::geom_line(
     data = data_2023_24 |> dplyr::mutate(date = date + 2 * 365),
@@ -98,7 +97,7 @@ p <- p +
   )
 
 data_2024_25 <- target_data |>
-  dplyr::filter(date >= "2024-09-01", date <= "2025-06-01", !is.na(location))
+  dplyr::filter(date >= "2024-09-01", date <= "2025-08-31", !is.na(location))
 p <- p +
   ggplot2::geom_line(
     data = data_2024_25 |> dplyr::mutate(date = date + 365),
