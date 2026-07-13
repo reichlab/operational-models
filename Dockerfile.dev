@@ -82,7 +82,9 @@ ENV RENV_PATHS_LIBRARY="renv/library"
 # Posit Public Package Manager setup: https://p3m.dev/client/#/repos/cran/setup
 RUN /rocker_scripts/setup_R.sh https://p3m.dev/cran/__linux__/jammy/2025-02-05
 RUN Rscript -e "install.packages('renv')"
-RUN Rscript -e "renv::restore()"
+RUN --mount=type=secret,id=github_pat \
+    GITHUB_PAT="$(cat /run/secrets/github_pat)" \
+    Rscript -e "renv::restore()"
 
 # clone https://github.com/reichlab/container-utils. ADD is a hack ala https://stackoverflow.com/questions/35134713/disable-cache-for-specific-run-commands
 ADD "https://api.github.com/repos/reichlab/container-utils/commits?per_page=1" latest_commit
