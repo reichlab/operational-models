@@ -10,12 +10,21 @@ args <- commandArgs(trailingOnly = TRUE)
 
 reference_date <- as.Date(args[1])
 reference_date <- lubridate::ymd(reference_date)
+data_date <- reference_date - 3
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 required_quantiles <- c(0.01, 0.025, seq(0.05, 0.95, by = 0.05), 0.975, 0.99)
 
 # load target data
-target_data <- readr::read_csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/target-data/target-hospital-admissions.csv")
+target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
+  dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total Influenza Admissions"))
+colnames(target_data) <- c("date", "location", "value")
+target_data <- target_data |>
+  dplyr::mutate(
+    abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
+  ) |>
+  dplyr::left_join(locations) |>
+  dplyr::filter(!is.na(location_name))
 target_ts <- target_data |>
   dplyr::select("date", "location", "value") |>
   dplyr::arrange(dplyr::desc(date)) |>
