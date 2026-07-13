@@ -2122,7 +2122,7 @@
       "Maintainer": "Anna Krystalli <annakrystalli@googlemail.com>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "Infectious-Disease-Modeling-Hubs",
+      "RemoteUsername": "hubverse-org",
       "RemoteRepo": "hubUtils",
       "RemoteRef": "main",
       "RemoteSha": "fa181282373e17ff30bce16e8e29844b8dd1110f"
@@ -2166,7 +2166,7 @@
       "Maintainer": "Lucie Contamin <contamin@pitt.edu>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "Infectious-Disease-Modeling-Hubs",
+      "RemoteUsername": "hubverse-org",
       "RemoteRepo": "hubVis",
       "RemoteRef": "main",
       "RemoteSha": "a2446846533953b8afb3255152a0218fbae16658",
@@ -2215,7 +2215,7 @@
       "RemoteRepo": "idforecastutils",
       "RemoteRef": "main",
       "RemoteSha": "0caa1626d98276aaf148641b12394ba6f6b5fa27",
-      "Remotes": "Infectious-Disease-Modeling-Hubs/hubEnsembles, Infectious-Disease-Modeling-Hubs/hubExamples, Infectious-Disease-Modeling-Hubs/hubUtils, Infectious-Disease-Modeling-Hubs/hubVis, reichlab/distfromq, reichlab/covidData"
+      "Remotes": "hubverse-org/hubEnsembles, hubverse-org/hubExamples, hubverse-org/hubUtils, hubverse-org/hubVis, reichlab/distfromq, reichlab/covidData"
     },
     "ini": {
       "Package": "ini",

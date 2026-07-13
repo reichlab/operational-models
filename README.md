@@ -17,11 +17,16 @@ Environment variables: Building the [Dockerfile](Dockerfile) for a particular mo
 
 - (required) `MODEL_DIR`: specifies the directory name (not full path) of the model being built. Example: `MODEL_DIR=flu_ar2`.
 
+The build also requires a GitHub Personal Access Token, passed as a [BuildKit build secret](https://docs.docker.com/build/building/secrets/) with id `github_pat`. This is used by the `renv::restore()` step, which resolves GitHub-hosted R packages (e.g. `hubverse-org/hubUtils`, `hubverse-org/hubVis`) via the GitHub API. Without an authenticated token, the many GitHub API calls made during resolution can exceed GitHub's unauthenticated rate limit, causing `renv::restore()` to fail intermittently. Provide the token via an environment variable (e.g. `read -rsp "GitHub PAT: " GITHUB_PAT && echo && export GITHUB_PAT`), which is passed to `docker build` with `--secret id=github_pat,env=GITHUB_PAT`.
+
 Example build command:
 
 ```bash
 cd "path-to-this-repo"
-docker build --build-arg MODEL_DIR=flu_ar2 --tag=flu_ar2:1.0 --file=Dockerfile .
+# set GITHUB_PAT as documented above
+docker build \
+  --secret id=github_pat,env=GITHUB_PAT \
+  --build-arg MODEL_DIR=flu_ar2 --tag=flu_ar2:1.0 --file=Dockerfile .
 ```
 
 ## To run the image locally
@@ -58,10 +63,15 @@ Use the following commands to build and push an image. These use the `flu_ar2` m
 > Note: We build for the `amd64` architecture because that's what most Linux-based servers (including AWS) use natively. This is as opposed to Apple Silicon Macs, which have an `arm64` architecture.
 > Note: For Macs with Apple silicon chips as of this writing, specifying `--platform=linux/amd64` causes the build to fail unless you disable Rosetta in Docker Desktop. For details, see [Buildx throws Illegal Instruction installing ca-certificates when building for linux/amd64 on M2 #7255](https://github.com/docker/for-mac/issues/7255).
 
+The `docker build` step here is identical to [To build the image](#to-build-the-image) and requires the same `--secret id=github_pat,env=GITHUB_PAT` (with `GITHUB_PAT` exported). The `docker push` step does not use the token.
+
 ```bash
 cd "path-to-this-repo"
+# set GITHUB_PAT as documented above
 docker login -u "reichlab" docker.io
-docker build --platform=linux/amd64 --build-arg MODEL_DIR=flu_ar2 --tag=reichlab/flu_ar2:1.0 --file=Dockerfile .
+docker build --platform=linux/amd64 \
+  --secret id=github_pat,env=GITHUB_PAT \
+  --build-arg MODEL_DIR=flu_ar2 --tag=reichlab/flu_ar2:1.0 --file=Dockerfile .
 docker push reichlab/flu_ar2:1.0
 ```
 
@@ -144,6 +154,7 @@ A `renv.lock` file is generated via the following steps. As noted above, the "in
    Rscript -e "renv::install('hubverse-org/hubData@*release')"
    Rscript -e "renv::install('hubverse-org/hubVis@*release')"
    ```
+   > Note: The hubverse R packages (`hubUtils`, `hubVis`, `hubEnsembles`, `hubExamples`) were renamed from the `Infectious-Disease-Modeling-Hubs` GitHub org to `hubverse-org`. The old org path still works via a GitHub redirect (HTTP 301), but each redirect adds an extra GitHub API call per package on every build. The `renv.lock` files reference the canonical `hubverse-org` paths to avoid these redirects and reduce API traffic (which, together with the authenticated build PAT, helps avoid GitHub API rate-limit failures during `renv::restore()`). Reference these packages under `hubverse-org/...` when regenerating a lockfile.
 7. create `renv.lock` from within the R interpreter (this fails in bash) via:
    ```R
    renv::settings$snapshot.type('all') ; renv::snapshot()
