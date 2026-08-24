@@ -41,7 +41,7 @@ def main(today_date: str | None = None, short_run: bool = False):
 
     ar6_model_config = SARIXModelConfig(
         model_name="ar6_pooled",
-        sources=[SourceType.NHSN],
+        main_source=SourceType.NHSN,
         fit_locations_separately=False,
         p=6,
         P=0,
@@ -63,7 +63,8 @@ def main(today_date: str | None = None, short_run: bool = False):
         bag_frac_samples=0.7,
         reporting_adj=False,
         save_feat_importance=False,
-        sources=[SourceType.FLUSURVNET, SourceType.NHSN, SourceType.ILINET],
+        main_source=SourceType.NHSN,
+        supplementary_sources=[SourceType.FLUSURVNET, SourceType.ILINET],
         fit_locations_separately=False,
         power_transform=PowerTransform.FOURTH_ROOT)
 
