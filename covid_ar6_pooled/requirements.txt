@@ -36,9 +36,9 @@ frozenlist==1.8.0
     #   aiosignal
 fsspec==2026.2.0
     # via s3fs
-iddata @ git+https://github.com/reichlab/iddata@a9d14fb9d886b46e639d99cb60ca67b56959f153
+iddata @ git+https://github.com/reichlab/iddata@4d7f8342691eabdb865cb2eb35c2fc0f4295e09f
     # via idmodels
-idmodels @ git+https://github.com/reichlab/idmodels@9d3301fa8cd7933080b5a1e7fd3ed9fb13e470dd
+idmodels @ git+https://github.com/reichlab/idmodels@8669bd7c2adbb7e167572ea0fb2be8e1fb0937ad
     # via -r covid_ar6_pooled/requirements.in
 idna==3.11
     # via yarl
