@@ -11,17 +11,11 @@ data_date <- ref_date - 3
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
-forecast_files <- Sys.glob("output/model-output/*/*.csv")
-if (length(forecast_files) > 1) {
-  stop("Expected to see a single forecast file.")
-}
-path_parts <- fs::path_split(forecast_files)[[1]]
-model_id <- path_parts[length(path_parts) - 1]
-
-forecasts <- dplyr::bind_rows(
-  read.csv(forecast_files) |>
-    dplyr::mutate(model_id = model_id)
-) |>
+selected_model <- "UMass-AR2"
+hub_con <- hubData::connect_model_output("output/model-output")
+forecasts <- hub_con |>
+  dplyr::filter(reference_date == ref_date, model_id == selected_model) |>
+  dplyr::collect() |>
   dplyr::left_join(locations)
 
 target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
@@ -56,7 +50,7 @@ p <- plot_step_ahead_model_output(
 if (!dir.exists("output/plots")) {
   dir.create("output/plots", recursive = TRUE)
 }
-pdf(paste0("output/plots/", ref_date, "-UMass-AR2.pdf"), width = 12, height = 30)
+pdf(paste0("output/plots/", ref_date, "-", selected_model, ".pdf"), width = 12, height = 30)
 print(p)
 dev.off()
 
@@ -118,6 +112,6 @@ if (!dir.exists("output/plots")) {
   dir.create("output/plots", recursive = TRUE)
 }
 
-pdf(paste0("output/plots/", ref_date, "-UMass-AR2_with_past_seasons.pdf"), width = 12, height = 30)
+pdf(paste0("output/plots/", ref_date, "-", selected_model, "_with_past_seasons.pdf"), width = 12, height = 30)
 print(p)
 dev.off()
