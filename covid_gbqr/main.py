@@ -27,7 +27,7 @@ def main(today_date: str | None = None, short_run: bool = False):
         bag_frac_samples=0.7,
         reporting_adj=False,
         save_feat_importance=False,
-        sources=[SourceType.NHSN],
+        main_source=SourceType.NHSN,
         fit_locations_separately=False,
         power_transform=PowerTransform.FOURTH_ROOT)
 

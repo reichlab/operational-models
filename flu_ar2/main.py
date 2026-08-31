@@ -22,7 +22,7 @@ def main(today_date: str | None = None, short_run: bool = False):
 
     model_config = SARIXModelConfig(
         model_name="AR2",
-        sources=[SourceType.NHSN],
+        main_source=SourceType.NHSN,
         fit_locations_separately=True,
         p=2,
         P=0,
