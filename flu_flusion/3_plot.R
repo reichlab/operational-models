@@ -68,7 +68,7 @@ dev.off()
 
 
 
-data_start <- as.Date("2025-09-01")
+data_start <- as.Date("2026-09-01")
 data_end <- ref_date + 6 * 7
 
 p <- plot_step_ahead_model_output(
@@ -91,7 +91,7 @@ data_2022_23 <- target_data |>
   dplyr::filter(date >= "2022-09-01", date <= "2023-06-15")
 p <- p +
   ggplot2::geom_line(
-    data = data_2022_23 |> dplyr::mutate(date = date + 3 * 365),
+    data = data_2022_23 |> dplyr::mutate(date = date + 4 * 365),
     mapping = ggplot2::aes(x = date, y = value, linetype = "2022-23"), color = 'lightgrey'
   )
 
@@ -99,7 +99,7 @@ data_2023_24 <- target_data |>
   dplyr::filter(date >= "2023-09-01", date <= "2024-06-15")
 p <- p +
   ggplot2::geom_line(
-    data = data_2023_24 |> dplyr::mutate(date = date + 2 * 365),
+    data = data_2023_24 |> dplyr::mutate(date = date + 3 * 365),
     mapping = ggplot2::aes(x = date, y = value, linetype = "2023-24"), color = 'grey'
   )
 
@@ -107,8 +107,16 @@ data_2024_25 <- target_data |>
   dplyr::filter(date >= "2024-09-01", date <= "2025-06-15")
 p <- p +
   ggplot2::geom_line(
-    data = data_2024_25 |> dplyr::mutate(date = date + 365),
+    data = data_2024_25 |> dplyr::mutate(date = date + 2 * 365),
     mapping = ggplot2::aes(x = date, y = value, linetype = "2024-25"), color = 'darkgrey'
+  )
+
+data_2025_26 <- target_data |>
+  dplyr::filter(date >= "2025-09-01", date <= "2026-08-31", !is.na(location))
+p <- p +
+  ggplot2::geom_line(
+    data = data_2025_26 |> dplyr::mutate(date = date + 365),
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2025-26"), color = '#969696'
   )
 
 p <- p +
@@ -117,7 +125,9 @@ p <- p +
     values = c(
       "2022-23" = "solid",
       "2023-24" = "solid",
-      "2024-25" = "solid")
+      "2024-25" = "solid",
+      "2025-26" = "solid"
+    )
   )
 
 p <- p + ggplot2::theme_bw()
