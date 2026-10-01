@@ -18,7 +18,7 @@ required_quantiles <- c(0.01, 0.025, seq(0.05, 0.95, by = 0.05), 0.975, 0.99)
 # load target data
 target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
   dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total Influenza Admissions"))
-colnames(target_data) <- c("date", "location", "value")
+colnames(target_data) <- c("date", "abbreviation", "value")
 target_data <- target_data |>
   dplyr::mutate(
     abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
