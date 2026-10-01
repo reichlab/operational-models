@@ -27,7 +27,7 @@ flusion <- hub_con |>
   dplyr::filter(reference_date == ref_date) |>
   dplyr::collect()
 
-forecasts <- dplyr::bind_rows(components |> dplyr::mutate(output_type_id = as.character(output_type_id)), flusion) |>
+forecasts <- dplyr::bind_rows(components, flusion) |>
   dplyr::left_join(locations)
 
 target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
@@ -138,17 +138,3 @@ if (!dir.exists("output/plots")) {
 pdf(paste0("output/plots/", ref_date, "-UMass-flusion_with_past_seasons.pdf"), width = 12, height = 30)
 print(p)
 dev.off()
-
-
-
-cat_names <- c("large_decrease", "decrease", "stable", "increase", "large_increase")
-grDevices::pdf(file = paste0("output/plots/", ref_date, "-UMass-flusion-with-categorical.pdf"), paper = "a4r")
-idforecastutils::plot_quantile_pmf_outputs_pdf(
-  model_out_tbl = flusion,
-  target_ts = target_data,
-  location_meta = locations,
-  reference_date = ref_date,
-  cats_ordered = cat_names[5:1],
-  quantile_title = "Inc Flu Hosp",
-  pmf_title = "Flu Hosp Rate Change"
-)

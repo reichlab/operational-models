@@ -8,9 +8,9 @@ library(lubridate)
 
 args <- commandArgs(trailingOnly = TRUE)
 
-reference_date <- as.Date(args[1])
-reference_date <- lubridate::ymd(reference_date)
-data_date <- reference_date - 3
+ref_date <- as.Date(args[1])
+ref_date <- lubridate::ymd(ref_date)
+data_date <- ref_date - 3
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 required_quantiles <- c(0.01, 0.025, seq(0.05, 0.95, by = 0.05), 0.975, 0.99)
@@ -18,7 +18,7 @@ required_quantiles <- c(0.01, 0.025, seq(0.05, 0.95, by = 0.05), 0.975, 0.99)
 # load target data
 target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
   dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total Influenza Admissions"))
-colnames(target_data) <- c("date", "location", "value")
+colnames(target_data) <- c("date", "abbreviation", "value")
 target_data <- target_data |>
   dplyr::mutate(
     abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
@@ -42,7 +42,7 @@ component_variations <- tidyr::expand_grid(
 outputs_list <- create_trends_ensemble(
   component_variations,
   target_ts,
-  reference_date,
+  ref_date,
   horizons = 0:3,
   target = "wk inc flu hosp",
   quantile_levels = required_quantiles,
@@ -60,8 +60,8 @@ component_outputs <- outputs_list[["baselines"]] |>
   )
 model_names <- unique(component_outputs$model_id)
 
-# pmf forecasts
-trends_ensemble_raw <- outputs_list[["ensemble"]] |>
+# save forecasts
+trends_ensemble_outputs <- outputs_list[["ensemble"]] |>
   dplyr::mutate(
     output_type_id = ifelse(
       .data[["output_type"]] == "sample",
@@ -69,27 +69,109 @@ trends_ensemble_raw <- outputs_list[["ensemble"]] |>
       as.character(.data[["output_type_id"]])
     )
   )
-
-bin_endpoints <- get_flusight_bin_endpoints(target_data, locations, season = "2024/25")
-trends_ensemble_pmf <- trends_ensemble_raw |>
-  dplyr::filter(output_type == "quantile") |>
-  idforecastutils::transform_quantile_to_pmf(bin_endpoints = bin_endpoints) |>
-  dplyr::mutate(target = "wk flu hosp rate change") |>
-  dplyr::ungroup()
-trends_ensemble_outputs <- trends_ensemble_raw |>
-  dplyr::bind_rows(trends_ensemble_pmf) |>
-  dplyr::mutate(horizon = as.integer(.data[["horizon"]]))
 trendsEnsemble::save_model_out_tbl(trends_ensemble_outputs, path = "output/model-output", extension = "parquet")
 
-# open PDF
-model_id <- "UMass-trends_ensemble"
-model_folder <- file.path("output/plots", model_id)
-if (!file.exists(model_folder)) dir.create(model_folder, recursive = TRUE)
-grDevices::pdf(file = paste0(model_folder, "/", reference_date, "-", model_id, ".pdf"), paper = "a4r")
-cat_names <- c("large_decrease", "decrease", "stable", "increase", "large_increase")
-idforecastutils::plot_quantile_pmf_outputs_pdf(
-  trends_ensemble_outputs,
-  target_data, locations,
-  reference_date, cats_ordered = cat_names[5:1],
-  quantile_title = "Inc Flu Hosp", pmf_title = "Flu Hosp Rate Change"
+# plot forecasts
+forecasts <- trends_ensemble_outputs |>
+  dplyr::filter(output_type == "quantile") |>
+  dplyr::mutate(output_type_id = as.numeric(output_type_id)) |>
+  dplyr::left_join(locations)
+
+data_start <- ref_date - 12 * 7
+data_end <- ref_date + 6 * 7
+
+p <- plot_step_ahead_model_output(
+  forecasts,
+  target_data |>
+    dplyr::filter(date >= data_start, date <= data_end) |>
+    dplyr::mutate(observation = value),
+  x_col_name = "target_end_date",
+  x_target_col_name = "date",
+  intervals = c(0.5, 0.8, 0.95),
+  facet = "location_name",
+  facet_scales = "free_y",
+  facet_nrow = 14,
+  use_median_as_point = TRUE,
+  interactive = FALSE,
+  show_plot = FALSE
 )
+
+if (!dir.exists("output/plots")) {
+  dir.create("output/plots", recursive = TRUE)
+}
+pdf(paste0("output/plots/", ref_date, "-UMass-trends_ensemble.pdf"), width = 12, height = 30)
+print(p)
+dev.off()
+
+
+
+data_start <- as.Date("2026-09-01")
+data_end <- ref_date + 6 * 7
+
+p <- plot_step_ahead_model_output(
+  forecasts,
+  target_data |>
+    dplyr::filter(date >= data_start, date <= data_end) |>
+    dplyr::mutate(observation = value),
+  x_col_name = "target_end_date",
+  x_target_col_name = "date",
+  intervals = c(0.5, 0.8, 0.95),
+  facet = "location_name",
+  facet_scales = "free_y",
+  facet_nrow = 14,
+  use_median_as_point = TRUE,
+  interactive = FALSE,
+  show_plot = FALSE
+)
+
+data_2022_23 <- target_data |>
+  dplyr::filter(date >= "2022-09-01", date <= "2023-06-15")
+p <- p +
+  ggplot2::geom_line(
+    data = data_2022_23 |> dplyr::mutate(date = date + 4 * 365),
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2022-23"), color = 'lightgrey'
+  )
+
+data_2023_24 <- target_data |>
+  dplyr::filter(date >= "2023-09-01", date <= "2024-06-15")
+p <- p +
+  ggplot2::geom_line(
+    data = data_2023_24 |> dplyr::mutate(date = date + 3 * 365),
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2023-24"), color = 'grey'
+  )
+
+data_2024_25 <- target_data |>
+  dplyr::filter(date >= "2024-09-01", date <= "2025-06-15")
+p <- p +
+  ggplot2::geom_line(
+    data = data_2024_25 |> dplyr::mutate(date = date + 2 * 365),
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2024-25"), color = 'darkgrey'
+  )
+
+data_2025_26 <- target_data |>
+  dplyr::filter(date >= "2025-09-01", date <= "2026-08-31", !is.na(location))
+p <- p +
+  ggplot2::geom_line(
+    data = data_2025_26 |> dplyr::mutate(date = date + 365),
+    mapping = ggplot2::aes(x = date, y = value, linetype = "2025-26"), color = '#969696'
+  )
+
+p <- p +
+  ggplot2::scale_linetype_manual(
+    name = "Past Season",
+    values = c(
+      "2022-23" = "solid",
+      "2023-24" = "solid",
+      "2024-25" = "solid",
+      "2025-26" = "solid"
+    )
+  )
+
+p <- p + ggplot2::theme_bw()
+
+if (!dir.exists("output/plots")) {
+  dir.create("output/plots", recursive = TRUE)
+}
+pdf(paste0("output/plots/", ref_date, "-UMass-trends_ensemble_with_past_seasons.pdf"), width = 12, height = 30)
+print(p)
+dev.off()

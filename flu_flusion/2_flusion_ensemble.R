@@ -30,23 +30,6 @@ target_ts <- target_data |>
   dplyr::arrange(dplyr::desc(date)) |>
   dplyr::rename(time_index = date, observation = value)
 
-# add categorical target predictions
-bin_endpoints <- idforecastutils::get_flusight_bin_endpoints(
-  target_ts = target_data,
-  location_meta = location_meta,
-  season = "2024/25"
-)
-categorical_outputs <- idforecastutils::transform_quantile_to_pmf(
-  model_out_tbl = model_out_tbl,
-  bin_endpoints = bin_endpoints
-) |>
-  dplyr::mutate(target = "wk flu hosp rate change") |>
-  ungroup()
-
-model_out_tbl <- dplyr::bind_rows(
-  model_out_tbl |> dplyr::mutate(output_type_id = as.character(output_type_id)),
-  categorical_outputs
-)
 
 # save
 reference_date <- model_out_tbl$reference_date[1]
@@ -57,7 +40,9 @@ if (!dir.exists(output_dir)) {
 }
 
 utils::write.csv(
-  model_out_tbl |> dplyr::select(-model_id),
+  model_out_tbl |>
+    dplyr::mutate(output_type_id = as.character(output_type_id))
+    |> dplyr::select(-model_id),
   file = file.path(
     output_dir,
     paste0(reference_date, "-UMass-flusion.csv")
