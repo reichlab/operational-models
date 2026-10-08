@@ -12,7 +12,7 @@ python -m pip install -r requirements.txt
 python main.py --today_date=2024-01-06
 ```
 
-This should result in a model output file and a pdf with a plot under `flu_ar2/output/`.
+This should result in a model output file concatenated from separate intermediate outputs for each of the targets, and 4 pdfs with plots under `flu_ar2/output/` of the component outputs (2 for each component).
 
 # requirements.txt and renv.lock details
 
