@@ -40,16 +40,16 @@ def main(today_date: str | None = None, short_run: bool = False):
     reference_date = today_date + relativedelta.relativedelta(weekday=5)
 
     nhsn_model_config = SARIXModelConfig(
-        model_name="nhsn_pooled",
+        model_name="nhsn",
         main_source=SourceType.NHSN,
-        fit_locations_separately=False,
+        fit_locations_separately=True,
         p=2,
         P=0,
         d=0,
         D=0,
         season_period=1,
         power_transform=PowerTransform.FOURTH_ROOT,
-        theta_pooling=PoolingStrategy.SHARED,
+        theta_pooling=PoolingStrategy.NONE,
         sigma_pooling=PoolingStrategy.NONE,
         x=[],
         num_warmup=2000,
@@ -57,16 +57,16 @@ def main(today_date: str | None = None, short_run: bool = False):
         num_chains=1)
 
     nssp_model_config = SARIXModelConfig(
-        model_name="nssp_pooled",
+        model_name="nssp",
         main_source=SourceType.NSSP,
-        fit_locations_separately=False,
+        fit_locations_separately=True,
         p=2,
         P=0,
         d=0,
         D=0,
         season_period=1,
         power_transform=PowerTransform.FOURTH_ROOT,
-        theta_pooling=PoolingStrategy.SHARED,
+        theta_pooling=PoolingStrategy.NONE,
         sigma_pooling=PoolingStrategy.NONE,
         x=[],
         num_warmup=2000,

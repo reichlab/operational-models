@@ -16,7 +16,7 @@ data_date <- ref_date - 3
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
-selected_model <- "UMass-nhsn_pooled"
+selected_model <- "UMass-nhsn"
 
 hub_con <- hubData::connect_model_output("intermediate-output/model-output")
 forecasts <- hub_con |>
@@ -147,7 +147,7 @@ dev.off()
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
-selected_model <- "UMass-nssp_pooled"
+selected_model <- "UMass-nssp"
 
 hub_con <- hubData::connect_model_output("intermediate-output/model-output")
 forecasts <- hub_con |>
