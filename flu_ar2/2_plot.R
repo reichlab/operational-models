@@ -7,7 +7,6 @@ library(hubVis)
 library(fs)
 library(readr)
 library(lubridate)
-library(idforecastutils)
 
 args <- commandArgs(trailingOnly = TRUE)
 

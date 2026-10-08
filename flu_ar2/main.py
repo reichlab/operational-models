@@ -7,7 +7,6 @@ import click
 from dateutil import relativedelta
 from iddata.enums import Disease
 from idmodels.config import (
-    GBQRModelConfig,
     PoolingStrategy,
     PowerTransform,
     RunConfig,
