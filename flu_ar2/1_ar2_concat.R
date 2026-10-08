@@ -10,7 +10,7 @@ hub_con <- hubData::connect_model_output("intermediate-output/model-output")
 # load components and concatenate
 model_out_tbl <- dplyr::collect(hub_con) |>
     dplyr::filter(reference_date == ref_date, horizon >= 0) |>
-    dplyr::mutate(model_id = "UMass-AR2")
+    dplyr::mutate(model_id = "UMass-AR2", horizon = as.integer(horizon))
 
 # save
 reference_date <- model_out_tbl$reference_date[1]
