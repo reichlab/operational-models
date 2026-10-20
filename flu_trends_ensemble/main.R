@@ -67,7 +67,8 @@ trends_ensemble_outputs <- outputs_list[["ensemble"]] |>
       .data[["output_type"]] == "sample",
       paste0(.data[["location"]], sprintf("%02g", .data[["output_type_id"]])),
       as.character(.data[["output_type_id"]])
-    )
+    ),
+    horizon = as.integer(horizon)
   )
 trendsEnsemble::save_model_out_tbl(trends_ensemble_outputs, path = "output/model-output", extension = "parquet")
 
