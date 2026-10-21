@@ -1,7 +1,20 @@
-import click
 import datetime
-from dateutil import relativedelta
 import subprocess
+from pathlib import Path
+
+import click
+from dateutil import relativedelta
+from iddata.enums import Disease
+from idmodels.config import (
+    PoolingStrategy,
+    PowerTransform,
+    RunConfig,
+    SampleIdScheme,
+    SARIXFourierModelConfig,
+    SourceType,
+)
+from idmodels.sarix import SARIXFourierModel
+
 
 @click.command()
 @click.option(
@@ -22,16 +35,82 @@ def main(today_date: str | None = None, short_run: bool = False):
     except (TypeError, ValueError):  # if today_date is None or a bad format
         today_date = datetime.date.today()
     reference_date = today_date + relativedelta.relativedelta(weekday=5)
-    
+
+    model_config = SARIXFourierModelConfig(
+        model_name = "SAR",
+
+        # data sources and adjustments for reporting issues
+        main_source = SourceType.NSSP,
+
+        # fit locations separately or jointly
+        fit_locations_separately = False,
+
+        # SARI model parameters
+        p = 6,
+        P = 0,
+        d = 0,
+        D = 0,
+        season_period = 1,
+
+        # power transform applied to surveillance signals
+        power_transform = PowerTransform.FOURTH_ROOT,
+
+        # sharing of information about parameters
+        theta_pooling = PoolingStrategy.SHARED,
+        sigma_pooling = PoolingStrategy.NONE,
+        fourier_pooling = PoolingStrategy.SHARED,
+
+        # Fourier seasonality parameters
+        fourier_K = 2, # A number of Fourier harmonic pairs for annual seasonality
+
+        # covariates
+        x = [],
+
+        # MCMC settings; num_samples * num_chains must be at least num_sample_forecasts
+        num_warmup = 2000,
+        num_samples = 2000,
+        num_chains = 1
+    )
+
+    run_config = RunConfig(
+        disease=Disease.FLU,
+        ref_date=reference_date,
+        output_root=Path("intermediate-output/model-output"),
+        artifact_store_root=None,
+        max_horizon=32,
+        states=["08", "13", "18", "23", "24", "25", "27", "36", "37", "41", "45", "48", "49", "51"],
+        hsas=["688", "711", "754", "760", "795", "796", #colorado
+            "275", #indiana
+            "143", "154", "157", "190", "193", #georgia
+            "825", "826", "829", "830", "893", "894", #georgia
+            "22", "32", "68", "74", "101", "112", #massachusetts
+            "16", "48", #maryland
+            "869", "875", "941", #maryland
+            "9", "17", #maine
+            "286", "289", "540", "588", "941", #minnesota
+            "689", "705", "719", "782", "973", #oregon
+            "160", "182", "184", "212", "244", "246", #south-carolina
+            "408", "410", "413", "415", "425", "453", #texas
+            "405", "406", "427", "434", "437", "441", "452", "462", #texas
+            "464", "495", "505", "510", "520", "532", "538", #texas
+            "14"], # virginia
+        # samples only: the hub doesn't take quantiles
+        q_levels = [],
+        q_labels = [],
+        # the hub requires exactly 100 samples per location. Draws are numbered 1-100 here, and
+        # 0_sar_format_metrocast.R prefixes them with each hub location name to make them unique across locations
+        num_sample_forecasts = 100,
+        sample_id_scheme = SampleIdScheme.DRAW_NUMBER
+    )
     if short_run:
-        short_run_flag = ["--short_run"]
-    else:
-        short_run_flag = []
-    
-    subprocess.run(["python", "0_ar6_thetaP_fourier.py",
-                    "--reference_date", str(reference_date)] + short_run_flag)
-    subprocess.run(["Rscript", "1_sar_format_metrocast.R", str(reference_date)])
-    subprocess.run(["Rscript", "2_plot.R", str(reference_date)])
+        model_config.num_warmup = 100
+        model_config.num_samples = 100
+
+    model = SARIXFourierModel(model_config)
+    model.run(run_config)
+
+    subprocess.run(["Rscript", "0_sar_format_metrocast.R", str(reference_date)])
+    subprocess.run(["Rscript", "1_plot.R", str(reference_date)])
 
 
 if __name__ == "__main__":

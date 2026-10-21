@@ -17,7 +17,7 @@ locations_to_drop <- locations |>
 selected_model <- "UMass-SAR"
 input_dir <- "output/model-output/UMass-SAR"
 
-forecasts <- readr::read_csv(file.path(input_dir, paste0(ref_date, "-", selected_model, ".csv"))) |>
+forecasts <- arrow::read_parquet(file.path(input_dir, paste0(ref_date, "-", selected_model, ".parquet"))) |>
   dplyr::filter(!location %in% locations_to_drop)
 
 # save
@@ -26,11 +26,11 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-utils::write.csv(
+# the hub only accepts parquet submissions
+arrow::write_parquet(
   forecasts,
-  file = file.path(
+  file.path(
     output_dir,
-    paste0(ref_date, "-", selected_model, ".csv")
-  ),
-  row.names = FALSE
+    paste0(ref_date, "-", selected_model, ".parquet")
+  )
 )

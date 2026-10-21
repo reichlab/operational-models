@@ -19,7 +19,10 @@ locations_meta <- locations |>
   dplyr::mutate(
     agg_level = ifelse(original_location_code == "All", "state", "hsa"),
     loc_code = ifelse(agg_level == "state", fips_code, original_location_code)
-  )
+  ) |>
+  # sub-state locations also include non-HSA regions (e.g. Utah and North Carolina regions) whose codes overlap
+  # HSA codes (Utah region "9" vs. Maine HSA "9"), so only match model HSAs to HSA locations
+  dplyr::filter(agg_level == "state" | location_type == "hsa_nci_id")
 
 # load components and rename locations
 outputs_path <- "intermediate-output/model-output"
@@ -30,18 +33,34 @@ model_outputs <- read.csv(paste0(
   "-UMass-SAR.csv"
 )) |>
   dplyr::mutate(
-    model_id = model_name,
     location = ifelse(agg_level == "state", sprintf("%02g", location), location)
   ) |>
   dplyr::rename(loc_code = location) |>
   dplyr::filter(reference_date == ref_date, horizon >= 0) |>
-  dplyr::left_join(locations_meta, by = c("loc_code", "agg_level")) |>
-  dplyr::mutate(target = "Flu ED visits pct", value = value * 100) |> # prop -> pct
+  dplyr::left_join(locations_meta, by = c("loc_code", "agg_level"))
+
+unmatched <- model_outputs |>
+  dplyr::filter(is.na(location)) |>
+  dplyr::distinct(agg_level, loc_code)
+if (nrow(unmatched) > 0) {
+  stop("No flu-metrocast location for: ", paste(unmatched$agg_level, unmatched$loc_code, collapse = ", "))
+}
+
+model_outputs <- model_outputs |>
+  dplyr::mutate(
+    target = "Flu ED visits pct",
+    value = value * 100, # prop -> pct
+    # sample ids must be unique across locations: idmodels numbers each location's draws 1-100, so prefix them
+    # with the location name (e.g. "denver1"), which never ends in a digit
+    output_type_id = paste0(location, as.integer(output_type_id)),
+    # parquet keeps column types, so match the hub schema's date columns
+    reference_date = as.Date(reference_date),
+    target_end_date = as.Date(target_end_date)
+  ) |>
   dplyr::arrange(state_abb) |>
-  dplyr::select(
+  dplyr::select( # horizon isn't a task id in the hub, so it's dropped
     "reference_date",
     "location",
-    "horizon",
     "target",
     "target_end_date",
     "output_type",
@@ -57,11 +76,11 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-utils::write.csv(
+# the hub only accepts parquet submissions
+arrow::write_parquet(
   model_outputs,
-  file = file.path(
+  file.path(
     output_dir,
-    paste0(reference_date, "-UMass-SAR.csv")
-  ),
-  row.names = FALSE
+    paste0(reference_date, "-UMass-SAR.parquet")
+  )
 )
