@@ -77,7 +77,7 @@ def main(today_date: str | None = None, short_run: bool = False):
         ref_date=reference_date,
         output_root=Path("intermediate-output/model-output"),
         artifact_store_root=None,
-        max_horizon=32,
+        max_horizon=34,
         states=["08", "13", "18", "23", "24", "25", "27", "36", "37", "41", "45", "48", "49", "51"],
         hsas=["688", "711", "754", "760", "795", "796", #colorado
             "275", #indiana
@@ -100,7 +100,9 @@ def main(today_date: str | None = None, short_run: bool = False):
         # the hub requires exactly 100 samples per location. Draws are numbered 1-100 here, and
         # 0_sar_format_metrocast.R prefixes them with each hub location name to make them unique across locations
         num_sample_forecasts = 100,
-        sample_id_scheme = SampleIdScheme.DRAW_NUMBER
+        sample_id_scheme = SampleIdScheme.DRAW_NUMBER,
+        # skip locations without data for the latest week (e.g. a state reporting late), which SARIX can't fit
+        drop_incomplete_locations = True
     )
     if short_run:
         model_config.num_warmup = 100

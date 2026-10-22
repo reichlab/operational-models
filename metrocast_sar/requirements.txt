@@ -42,7 +42,7 @@ fsspec==2026.9.0
     # via s3fs
 iddata @ git+https://github.com/reichlab/iddata@6f5553008b4cabdaeb231ccf632c35e6d0ebab4b
     # via idmodels
-idmodels @ git+https://github.com/reichlab/idmodels@b9496a9d8f6917ed7452e61dc8c9bb9f4f253720
+idmodels @ git+https://github.com/reichlab/idmodels@7141bdc1f16e2b800ddab3fd9eea59b953525f70
     # via -r metrocast_sar/requirements.in
 idna==3.20
     # via yarl
