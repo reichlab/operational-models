@@ -85,7 +85,7 @@ def main(today_date: str | None = None, short_run: bool = False):
             "825", "826", "829", "830", "893", "894", #georgia
             "22", "32", "68", "74", "101", "112", #massachusetts
             "16", "48", #maryland
-            "869", "875", "941", #maryland
+            "869", "875", #maryland
             "9", "17", #maine
             "286", "289", "540", "588", "941", #minnesota
             "689", "705", "719", "782", "973", #oregon
