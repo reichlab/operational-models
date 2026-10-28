@@ -15,6 +15,9 @@ from idmodels.config import (
 )
 from idmodels.sarix import SARIXFourierModel
 
+# last target end date to forecast
+SEASON_END_DATE = datetime.date(2027, 6, 12)
+
 
 @click.command()
 @click.option(
@@ -35,6 +38,11 @@ def main(today_date: str | None = None, short_run: bool = False):
     except (TypeError, ValueError):  # if today_date is None or a bad format
         today_date = datetime.date.today()
     reference_date = today_date + relativedelta.relativedelta(weekday=5)
+    # forecast through the end of the season. idmodels counts horizons from the last observed week (the week before
+    # reference_date), so reaching hub horizon h takes h + 1 model horizons
+    max_horizon = (SEASON_END_DATE - reference_date).days // 7 + 1
+    if max_horizon < 1:
+        raise ValueError(f"reference_date {reference_date} is after the end of the season ({SEASON_END_DATE})")
 
     model_config = SARIXFourierModelConfig(
         model_name = "SAR",
@@ -77,7 +85,7 @@ def main(today_date: str | None = None, short_run: bool = False):
         ref_date=reference_date,
         output_root=Path("intermediate-output/model-output"),
         artifact_store_root=None,
-        max_horizon=34,
+        max_horizon=max_horizon,
         states=["08", "13", "18", "23", "24", "25", "27", "36", "37", "41", "45", "48", "49", "51"],
         hsas=["688", "711", "754", "760", "795", "796", #colorado
             "275", #indiana

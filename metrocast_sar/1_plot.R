@@ -32,10 +32,10 @@ forecasts <- arrow::read_parquet(paste0(
   dplyr::arrange(state_abb)
 
 # the forecasts are samples only. hubVis summarizes them as quantiles when intervals are given (used for the
-# near-term horizons 0-3) and plots each sample trajectory when intervals = NULL (used for all horizons 0-33)
+# near-term horizons 0-3) and plots each sample trajectory when intervals = NULL (used for all horizons, which run
+# through the end of the season)
 forecasts_near_term <- forecasts |> dplyr::filter(horizon >= 0, horizon <= 3)
-forecasts_trajectories <- forecasts |>
-  dplyr::filter(horizon >= 0, horizon <= 33)
+forecasts_trajectories <- forecasts |> dplyr::filter(horizon >= 0)
 
 target_data <- readr::read_csv(
   "https://raw.githubusercontent.com/reichlab/flu-metrocast/refs/heads/main/target-data/latest-data.csv"
@@ -79,7 +79,7 @@ dev.off()
 
 
 data_start <- as.Date("2026-09-01")
-data_end <- ref_date + 34 * 7 # through horizon 33
+data_end <- max(forecasts_trajectories$target_end_date) # through the last horizon
 
 # past seasons, shifted onto the current season's dates. Darker grays for more recent seasons
 past_seasons <- list(
