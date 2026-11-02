@@ -80,6 +80,7 @@ def main(today_date: str | None = None, short_run: bool = False):
         max_horizon=4,
         states=_STATES,
         hsas=[],
+        drop_incomplete_locations=True,
         q_levels=_Q_LEVELS,
         q_labels=_Q_LABELS)
 
