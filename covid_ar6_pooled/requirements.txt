@@ -24,6 +24,10 @@ botocore==1.42.49
     # via aiobotocore
 click==8.3.1
     # via -r covid_ar6_pooled/requirements.in
+colorama==0.4.6
+    # via
+    #   click
+    #   tqdm
 contourpy==1.3.3
     # via matplotlib
 cycler==0.12.1
@@ -36,9 +40,9 @@ frozenlist==1.8.0
     #   aiosignal
 fsspec==2026.2.0
     # via s3fs
-iddata @ git+https://github.com/reichlab/iddata@5f99e09115b977cca76be41d68e971c55f8e2a89
+iddata @ git+https://github.com/reichlab/iddata@6f5553008b4cabdaeb231ccf632c35e6d0ebab4b
     # via idmodels
-idmodels @ git+https://github.com/reichlab/idmodels@08b259aa303c220ce68f028b8a48401a4026d18f
+idmodels @ git+https://github.com/reichlab/idmodels@5f5e1bbaa6f6b61630cff8a1d76f6162c6de31ec
     # via -r covid_ar6_pooled/requirements.in
 idna==3.11
     # via yarl
@@ -55,7 +59,9 @@ jmespath==1.1.0
     #   aiobotocore
     #   botocore
 joblib==1.5.3
-    # via scikit-learn
+    # via
+    #   idmodels
+    #   scikit-learn
 kiwisolver==1.4.9
     # via matplotlib
 lightgbm==4.6.0
@@ -110,6 +116,8 @@ propcache==0.4.1
     # via
     #   aiohttp
     #   yarl
+pyarrow==26.0.0
+    # via iddata
 pygments==2.19.2
     # via rich
 pymmwr==0.2.2
@@ -127,7 +135,9 @@ pytz==2025.2
 rich==14.3.2
     # via iddata
 s3fs==2026.2.0
-    # via iddata
+    # via
+    #   iddata
+    #   idmodels
 sarix @ git+https://github.com/reichlab/sarix@35eea2379a9790e0457b1aed41d13509e5d5056f
     # via idmodels
 scikit-learn==1.8.0
