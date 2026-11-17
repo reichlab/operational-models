@@ -42,8 +42,13 @@ Environment variables: There are two sources of environment variables used by th
     - `REPO_URL` (required): Full URL of the repository being cloned, excluding ".git". Example: `REPO_URL=https://github.com/reichlab/FluSight-forecast-hub`
     - `REPO_UPSTREAM_URL` (required): Full URL of the repository that `REPO_URL` was forked from, excluding ".git". Example: `REPO_UPSTREAM_URL=https://github.com/cdcepi/FluSight-forecast-hub`
     - `MAIN_PY_ARGS` (optional): Specifies arguments that are passed through to [run.sh](run.sh)'s call to the particular model's `main.py`. Note that these arguments are model-specific. For example, the
-      _flu_flusion_ model accepts two args: `MAIN_PY_ARGS=--today_date=2024-11-27 --short_run=True` whereas the
-      `flu_ar2` model accepts only the former arg.
+      _flu_flusion_ model accepts three args: `MAIN_PY_ARGS=--today_date=2024-11-27 --short_run --use_versioned_data`
+      whereas the `flu_trends_ensemble` model doesn't accept `--short_run`.
+      - `--use_versioned_data` (covid_ar6_pooled, covid_gbqr, flu_ar2, flu_flusion, flu_trends_ensemble): by default,
+        the R scripts read the latest target data from the hub's GitHub repo, so production runs work even when a holiday
+        delays the data release past Wednesday. Pass this flag for retrospective runs to instead read the S3 snapshot
+        released on the Wednesday before the reference date. (The Python models always train on the S3 snapshot dated on
+        or before the reference date via iddata.)
 
 Example run command:
 

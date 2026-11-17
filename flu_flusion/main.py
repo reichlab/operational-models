@@ -31,7 +31,10 @@ _Q_LABELS = ["0.01", "0.025", "0.05", "0.1", "0.15", "0.2", "0.25", "0.3", "0.35
 @click.command()
 @click.option("--today_date", type=str, required=False, help="Date to use as effective model run date (YYYY-MM-DD)")
 @click.option("--short_run", is_flag=True, help="Run with reduced parameters for faster testing")
-def main(today_date: str | None = None, short_run: bool = False):
+@click.option("--use_versioned_data", is_flag=True,
+              help="Plot the target data snapshot released on the Wednesday before the reference date (for "
+                   "retrospective runs) instead of the latest target data on the hub's GitHub repo")
+def main(today_date: str | None = None, short_run: bool = False, use_versioned_data: bool = False):
     """Generate flu predictions from flusion ensemble (AR6 + GBQR) and plot them."""
     try:
         today_date = datetime.date.fromisoformat(today_date)
@@ -92,7 +95,7 @@ def main(today_date: str | None = None, short_run: bool = False):
     gbqr_model.run(run_config)
 
     subprocess.run(["Rscript", "2_flusion_ensemble.R", str(reference_date)])
-    subprocess.run(["Rscript", "3_plot.R", str(reference_date)])
+    subprocess.run(["Rscript", "3_plot.R", str(reference_date), str(use_versioned_data)])
 
 
 if __name__ == "__main__":

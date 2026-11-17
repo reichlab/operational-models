@@ -12,7 +12,10 @@ from idmodels.sarix import SARIXModel
 @click.command()
 @click.option("--today_date", type=str, required=False, help="Date to use as effective model run date (YYYY-MM-DD)")
 @click.option("--short_run", is_flag=True, help="Run with reduced parameters for faster testing")
-def main(today_date: str | None = None, short_run: bool = False):
+@click.option("--use_versioned_data", is_flag=True,
+              help="Plot the target data snapshot released on the Wednesday before the reference date (for "
+                   "retrospective runs) instead of the latest target data on the hub's GitHub repo")
+def main(today_date: str | None = None, short_run: bool = False, use_versioned_data: bool = False):
     """Generate covid predictions from AR(6) model and plot them."""
     try:
         today_date = datetime.date.fromisoformat(today_date)
@@ -67,7 +70,7 @@ def main(today_date: str | None = None, short_run: bool = False):
     model = SARIXModel(model_config)
     model.run(run_config)
 
-    subprocess.run(["Rscript", "1_plot.R", str(reference_date)])
+    subprocess.run(["Rscript", "1_plot.R", str(reference_date), str(use_versioned_data)])
 
 
 if __name__ == "__main__":

@@ -13,6 +13,9 @@ args <- commandArgs(trailingOnly = TRUE)
 
 ref_date <- as.Date(args[1])
 data_date <- ref_date - 3
+# TRUE: plot the S3 snapshot of target data released on data_date (for retrospective runs). FALSE (the default): plot
+# the latest target data on the hub's GitHub repo, which works regardless of the day the data are released
+use_versioned_data <- isTRUE(as.logical(args[2]))
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
@@ -30,14 +33,23 @@ flusion <- hub_con |>
 forecasts <- dplyr::bind_rows(components, flusion) |>
   dplyr::left_join(locations)
 
-target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
-  dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total Influenza Admissions"))
-colnames(target_data) <- c("date", "abbreviation", "value")
-target_data <- target_data |>
-  dplyr::mutate(
-    abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
+if (use_versioned_data) {
+  target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
+    dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total Influenza Admissions"))
+  colnames(target_data) <- c("date", "abbreviation", "value")
+  target_data <- target_data |>
+    dplyr::mutate(
+      abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
+    ) |>
+    dplyr::left_join(locations)
+} else {
+  target_data <- readr::read_csv(
+    "https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/target-data/target-hospital-admissions.csv",
+    col_types = readr::cols(date = "D", location = "c", value = "d", .default = "-")
   ) |>
-  dplyr::left_join(locations) |>
+    dplyr::left_join(locations, by = "location")
+}
+target_data <- target_data |>
   dplyr::filter(!is.na(location_name))
 
 data_start <- ref_date - 12 * 7
