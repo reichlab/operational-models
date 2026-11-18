@@ -12,10 +12,17 @@ library(idforecastutils)
 args <- commandArgs(trailingOnly = TRUE)
 
 ref_date <- as.Date(args[1])
-data_date <- ref_date - 3
-# TRUE: plot the S3 snapshot of target data released on data_date (for retrospective runs). FALSE (the default): plot
-# the latest target data on the hub's GitHub repo, which works regardless of the day the data are released
-use_versioned_data <- isTRUE(as.logical(args[2]))
+# use the newest S3 target data snapshot released in the week ending on ref_date. This is usually Wednesday's
+# (ref_date - 3), but a holiday can delay the release. Like iddata, but stops if there is no snapshot that week rather
+# than silently using last week's
+snapshot_exists <- function(dataset, date) {
+  tryCatch({
+    close(url(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/", dataset, "-", date, ".csv"), open = "rb"))
+    TRUE
+  }, error = function(e) FALSE, warning = function(w) FALSE)
+}
+data_date <- Find(function(d) snapshot_exists("influenza-nhsn/nhsn", d), as.character(ref_date - 0:6))
+if (is.null(data_date)) stop("no NHSN snapshot found from ", ref_date - 6, " to ", ref_date)
 
 locations <- read.csv("https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
@@ -27,23 +34,14 @@ forecasts <- hub_con |>
   dplyr::collect() |>
   dplyr::left_join(locations)
 
-if (use_versioned_data) {
-  target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
-    dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total COVID-19 Admissions"))
-  colnames(target_data) <- c("date", "abbreviation", "value")
-  target_data <- target_data |>
-    dplyr::mutate(
-      abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
-    ) |>
-    dplyr::left_join(locations)
-} else {
-  target_data <- readr::read_csv(
-    "https://raw.githubusercontent.com/CDCgov/covid19-forecast-hub/main/target-data/covid-hospital-admissions.csv",
-    col_types = readr::cols(target_end_date = "D", location = "c", value = "d", .default = "-")
+target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
+  dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total COVID-19 Admissions"))
+colnames(target_data) <- c("date", "abbreviation", "value")
+target_data <- target_data |>
+  dplyr::mutate(
+    abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
   ) |>
-    dplyr::rename(date = target_end_date) |>
-    dplyr::left_join(locations, by = "location")
-}
+  dplyr::left_join(locations)
 
 data_start <- ref_date - 12 * 7
 data_end <- ref_date + 6 * 7

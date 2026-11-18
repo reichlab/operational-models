@@ -12,10 +12,7 @@ from idmodels.gbqr import GBQRModel
 @click.command()
 @click.option("--today_date", type=str, required=False, help="Date to use as effective model run date (YYYY-MM-DD)")
 @click.option("--short_run", is_flag=True, help="Run with reduced parameters for faster testing")
-@click.option("--use_versioned_data", is_flag=True,
-              help="Plot the target data snapshot released on the Wednesday before the reference date (for "
-                   "retrospective runs) instead of the latest target data on the hub's GitHub repo")
-def main(today_date: str | None = None, short_run: bool = False, use_versioned_data: bool = False):
+def main(today_date: str | None = None, short_run: bool = False):
     """Generate covid predictions from gbqr model and plot them."""
     try:
         today_date = datetime.date.fromisoformat(today_date)
@@ -63,7 +60,7 @@ def main(today_date: str | None = None, short_run: bool = False, use_versioned_d
     model = GBQRModel(model_config)
     model.run(run_config)
 
-    subprocess.run(["Rscript", "1_plot.R", str(reference_date), str(use_versioned_data)])
+    subprocess.run(["Rscript", "1_plot.R", str(reference_date)])
 
 
 if __name__ == "__main__":
