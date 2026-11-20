@@ -21,9 +21,7 @@ snapshot_exists <- function(dataset, date) {
   }, error = function(e) FALSE, warning = function(w) FALSE)
 }
 data_date <- Find(function(d) snapshot_exists("influenza-nhsn/nhsn", d), as.character(ref_date - 0:6))
-if (is.null(data_date)) stop("no NHSN snapshot found from ", ref_date - 6, " to ", ref_date)
-nssp_date <- Find(function(d) snapshot_exists("nssp/nssp", d), as.character(ref_date - 0:6))
-if (is.null(nssp_date)) stop("no NSSP snapshot found from ", ref_date - 6, " to ", ref_date)
+if (is.null(data_date)) stop("no NHSN snapshot found from ", ref_date - 6, " to ", ref_date, " (or S3 is unreachable)")
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
@@ -156,6 +154,9 @@ forecasts <- hub_con |>
   dplyr::filter(reference_date == ref_date, model_id == selected_model) |>
   dplyr::collect() |>
   dplyr::left_join(locations)
+
+nssp_date <- Find(function(d) snapshot_exists("nssp/nssp", d), as.character(ref_date - 0:6))
+if (is.null(nssp_date)) stop("no NSSP snapshot found from ", ref_date - 6, " to ", ref_date, " (or S3 is unreachable)")
 
 target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/nssp/nssp-", nssp_date, ".csv")) |>
   dplyr::filter(county == "All") |>

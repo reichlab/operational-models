@@ -20,7 +20,7 @@ snapshot_exists <- function(dataset, date) {
   }, error = function(e) FALSE, warning = function(w) FALSE)
 }
 data_date <- Find(function(d) snapshot_exists("influenza-nhsn/nhsn", d), as.character(ref_date - 0:6))
-if (is.null(data_date)) stop("no NHSN snapshot found from ", ref_date - 6, " to ", ref_date)
+if (is.null(data_date)) stop("no NHSN snapshot found from ", ref_date - 6, " to ", ref_date, " (or S3 is unreachable)")
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 required_quantiles <- c(0.01, 0.025, seq(0.05, 0.95, by = 0.05), 0.975, 0.99)

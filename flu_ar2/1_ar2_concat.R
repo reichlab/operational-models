@@ -3,7 +3,6 @@ library(hubData)
 
 args <- commandArgs(trailingOnly = TRUE)
 ref_date <- as.Date(args[1])
-data_date <- ref_date - 3
 
 hub_con <- hubData::connect_model_output("intermediate-output/model-output")
 
