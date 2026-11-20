@@ -61,6 +61,15 @@ fi
 
 slack_message "${MODEL_NAME}: python OK; collecting PDF and CSV/PARQUET files"
 
+# OUT_FILE is only uploaded on failure, so surface any locations idmodels dropped (RunConfig.drop_incomplete_locations)
+# here; otherwise the submission is silently missing them. the pattern must match the `warnings.warn` text in idmodels'
+# `IDModel._drop_incomplete_locations` (idmodels/model.py). it keeps the "main.py:NN:" prefix that Python adds, since
+# some models (e.g., flu_ar2) call model.run() more than once, and the line number tells which run dropped locations
+DROPPED_LOCATIONS=$(grep -o "[^ /]*: UserWarning: Dropping [0-9]* location.*" ${OUT_FILE})
+if [ -n "${DROPPED_LOCATIONS}" ]; then
+  slack_message "${MODEL_NAME}: WARNING: idmodels dropped locations:"$'\n'"${DROPPED_LOCATIONS}"
+fi
+
 MODEL_OUTPUT_FILES=($(find "${APP_DIR}/output/model-output/${MODEL_NAME}" -type f \( -name "*.csv" -o -name "*.parquet" \) )) # creates an array from find output
 NUM_MODEL_OUTPUT_FILES=${#MODEL_OUTPUT_FILES[@]}
 if [ "${NUM_MODEL_OUTPUT_FILES}" -ne 1 ]; then
