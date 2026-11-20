@@ -11,7 +11,17 @@ library(lubridate)
 args <- commandArgs(trailingOnly = TRUE)
 
 ref_date <- as.Date(args[1])
-data_date <- ref_date - 3
+# use the newest S3 target data snapshot released in the week ending on ref_date. This is usually Wednesday's
+# (ref_date - 3), but a holiday can delay the release. Like iddata, but stops if there is no snapshot that week rather
+# than silently using last week's
+snapshot_exists <- function(dataset, date) {
+  tryCatch({
+    close(url(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/", dataset, "-", date, ".csv"), open = "rb"))
+    TRUE
+  }, error = function(e) FALSE, warning = function(w) FALSE)
+}
+data_date <- Find(function(d) snapshot_exists("influenza-nhsn/nhsn", d), as.character(ref_date - 0:6))
+if (is.null(data_date)) stop("no NHSN snapshot found from ", ref_date - 6, " to ", ref_date, " (or S3 is unreachable)")
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 
@@ -59,15 +69,6 @@ print(p)
 dev.off()
 
 
-
-target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/influenza-nhsn/nhsn-", data_date, ".csv")) |>
-  dplyr::select(c("Week Ending Date", "Geographic aggregation", "Total Influenza Admissions"))
-colnames(target_data) <- c("date", "abbreviation", "value")
-target_data <- target_data |>
-  dplyr::mutate(
-    abbreviation = ifelse(abbreviation == "USA", "US", abbreviation)
-  ) |>
-  dplyr::left_join(locations)
 
 data_start <- as.Date("2026-09-01")
 data_end <- ref_date + 6 * 7
@@ -154,7 +155,10 @@ forecasts <- hub_con |>
   dplyr::collect() |>
   dplyr::left_join(locations)
 
-target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/nssp/nssp-", data_date, ".csv")) |>
+nssp_date <- Find(function(d) snapshot_exists("nssp/nssp", d), as.character(ref_date - 0:6))
+if (is.null(nssp_date)) stop("no NSSP snapshot found from ", ref_date - 6, " to ", ref_date, " (or S3 is unreachable)")
+
+target_data <- readr::read_csv(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/nssp/nssp-", nssp_date, ".csv")) |>
   dplyr::filter(county == "All") |>
   dplyr::select(c("week_end", "geography", "percent_visits_influenza"))
 colnames(target_data) <- c("date", "location_name", "value")

@@ -10,7 +10,17 @@ args <- commandArgs(trailingOnly = TRUE)
 
 ref_date <- as.Date(args[1])
 ref_date <- lubridate::ymd(ref_date)
-data_date <- ref_date - 3
+# use the newest S3 target data snapshot released in the week ending on ref_date. This is usually Wednesday's
+# (ref_date - 3), but a holiday can delay the release. Like iddata, but stops if there is no snapshot that week rather
+# than silently using last week's
+snapshot_exists <- function(dataset, date) {
+  tryCatch({
+    close(url(paste0("https://infectious-disease-data.s3.amazonaws.com/data-raw/", dataset, "-", date, ".csv"), open = "rb"))
+    TRUE
+  }, error = function(e) FALSE, warning = function(w) FALSE)
+}
+data_date <- Find(function(d) snapshot_exists("influenza-nhsn/nhsn", d), as.character(ref_date - 0:6))
+if (is.null(data_date)) stop("no NHSN snapshot found from ", ref_date - 6, " to ", ref_date, " (or S3 is unreachable)")
 
 locations <- read.csv("https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/refs/heads/main/auxiliary-data/locations.csv")
 required_quantiles <- c(0.01, 0.025, seq(0.05, 0.95, by = 0.05), 0.975, 0.99)
